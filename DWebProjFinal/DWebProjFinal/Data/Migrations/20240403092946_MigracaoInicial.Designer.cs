@@ -4,6 +4,7 @@ using DWebProjFinal.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DWebProjFinal.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240403092946_MigracaoInicial")]
+    partial class MigracaoInicial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,101 +24,6 @@ namespace DWebProjFinal.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("DWebProjFinal.Models.Categorias", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("CategoriasId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("PaginasId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoriasId");
-
-                    b.HasIndex("PaginasId");
-
-                    b.ToTable("Categorias");
-                });
-
-            modelBuilder.Entity("DWebProjFinal.Models.Paginas", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Descricao")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Dificuldade")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Media")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UtenteFK")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("UtentesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UtentesId");
-
-                    b.ToTable("Paginas");
-                });
-
-            modelBuilder.Entity("DWebProjFinal.Models.Utentes", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Biografia")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Telemovel")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateOnly>("dataNasc")
-                        .HasColumnType("date");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Utentes");
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -319,24 +227,6 @@ namespace DWebProjFinal.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("DWebProjFinal.Models.Categorias", b =>
-                {
-                    b.HasOne("DWebProjFinal.Models.Categorias", null)
-                        .WithMany("ListaCategorias")
-                        .HasForeignKey("CategoriasId");
-
-                    b.HasOne("DWebProjFinal.Models.Paginas", null)
-                        .WithMany("ListaCategorias")
-                        .HasForeignKey("PaginasId");
-                });
-
-            modelBuilder.Entity("DWebProjFinal.Models.Paginas", b =>
-                {
-                    b.HasOne("DWebProjFinal.Models.Utentes", null)
-                        .WithMany("ListaPaginas")
-                        .HasForeignKey("UtentesId");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -386,21 +276,6 @@ namespace DWebProjFinal.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("DWebProjFinal.Models.Categorias", b =>
-                {
-                    b.Navigation("ListaCategorias");
-                });
-
-            modelBuilder.Entity("DWebProjFinal.Models.Paginas", b =>
-                {
-                    b.Navigation("ListaCategorias");
-                });
-
-            modelBuilder.Entity("DWebProjFinal.Models.Utentes", b =>
-                {
-                    b.Navigation("ListaPaginas");
                 });
 #pragma warning restore 612, 618
         }
