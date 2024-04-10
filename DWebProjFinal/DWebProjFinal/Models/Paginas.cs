@@ -5,6 +5,12 @@ namespace DWebProjFinal.Models
 {
     public class Paginas
     {
+        public Paginas()
+        {
+            ListaCategorias = new HashSet<Categorias>();
+        }
+
+
         [Key]
         public int Id { get; set; }
 

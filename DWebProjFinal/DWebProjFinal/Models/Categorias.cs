@@ -4,11 +4,15 @@ namespace DWebProjFinal.Models
 {
     public class Categorias
     {
+        public Categorias()
+        {
+            ListaPaginas = new HashSet<Paginas>();
+        }
         [Key]
         public int Id { get; set; }
 
         public string Nome { get; set;}
 
-        public ICollection<Categorias> ListaCategorias { get; set; }
+        public ICollection<Paginas> ListaPaginas { get; set; }
     }
 }
