@@ -8,16 +8,24 @@ namespace DWebProjFinal.Models
         [Key]
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "O Tutorial precisa de um título")]
+        [StringLength(100)]
+        [Display(Name="Título")]
         public string Name { get; set; }
 
-        public string Descricao { get; set; }
+        [Display(Name = "Descrição")]
+        public string? Descricao { get; set; } //Preenchimento facultativo
 
+        [Required(ErrorMessage = "O Tutorial precisa de uma dificuldade")]
         public int Dificuldade { get; set; }
 
-        public string[] Media { get; set; }
+        [Display(Name = "Thumbnail")] //Define o nome a aparecer no ecrã
+        public string? Media { get; set; } //Preenchimento facultativo
 
-        [ForeignKey(nameof(Utentes))]
+        [ForeignKey(nameof(Utente))]
+        [Display(Name= "Chave Forasteira do Utente")]
         public int UtenteFK { get; set; }
+        public Utentes Utente { get; set; }
 
         public ICollection<Categorias> ListaCategorias { get; set; }
     }

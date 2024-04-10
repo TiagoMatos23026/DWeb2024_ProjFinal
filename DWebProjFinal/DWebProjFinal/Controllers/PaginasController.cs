@@ -12,6 +12,9 @@ namespace DWebProjFinal.Controllers
 {
     public class PaginasController : Controller
     {
+        /// <summary>
+        /// Atributo de referência à bd
+        /// </summary>
         private readonly ApplicationDbContext _context;
 
         public PaginasController(ApplicationDbContext context)
@@ -56,12 +59,23 @@ namespace DWebProjFinal.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Descricao,Dificuldade,Media,UtenteFK")] Paginas paginas)
         {
+
+            //Avalia se os dados recebidos estão de acordo com o Model
             if (ModelState.IsValid)
             {
+
+                //falta fazer a gestão do ficheiro que é uploaded
+
+                //Adiciona o modelo recebido ao atributo que referencia a bd
                 _context.Add(paginas);
+                //Adiciona o atributo _context à bd (commit)
                 await _context.SaveChangesAsync();
+                //Redireciona o utilizador para a página "Index" dentro da View "Cursos"
                 return RedirectToAction(nameof(Index));
             }
+
+            //Se os dados não forem aceites, voltamos à View com os dados previamente preenchidos
+            //Os dados são passados dentro do atributo "paginas"
             return View(paginas);
         }
 

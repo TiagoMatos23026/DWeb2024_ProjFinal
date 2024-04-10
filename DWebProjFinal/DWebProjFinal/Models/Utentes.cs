@@ -4,6 +4,12 @@ namespace DWebProjFinal.Models
 {
     public class Utentes
     {
+        public Utentes()
+        {
+            ListaPaginas = new HashSet<Paginas>();
+        }
+
+
         [Key]
         public int Id { get; set; }
 
@@ -15,7 +21,7 @@ namespace DWebProjFinal.Models
 
         public DateOnly dataNasc { get; set; }
 
-        public string Biografia {  get; set; }
+        public string Biografia { get; set; }
 
         public ICollection<Paginas> ListaPaginas { get; set; }
 
