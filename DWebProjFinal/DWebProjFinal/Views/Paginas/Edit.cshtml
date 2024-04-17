@@ -29,13 +29,13 @@
                 <span asp-validation-for="Dificuldade" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Media" class="control-label"></label>
-                <input asp-for="Media" class="form-control" />
-                <span asp-validation-for="Media" class="text-danger"></span>
+                <label asp-for="Thumbnail" class="control-label"></label>
+                <input asp-for="Thumbnail" class="form-control" />
+                <span asp-validation-for="Thumbnail" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="UtenteFK" class="control-label"></label>
-                <input asp-for="UtenteFK" class="form-control" />
+                <select asp-for="UtenteFK" class="form-control" asp-items="ViewBag.UtenteFK"></select>
                 <span asp-validation-for="UtenteFK" class="text-danger"></span>
             </div>
             <div class="form-group">

@@ -22,10 +22,10 @@
                 @Html.DisplayNameFor(model => model.Dificuldade)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Media)
+                @Html.DisplayNameFor(model => model.Thumbnail)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UtenteFK)
+                @Html.DisplayNameFor(model => model.Utente)
             </th>
             <th></th>
         </tr>
@@ -43,10 +43,10 @@
                 @Html.DisplayFor(modelItem => item.Dificuldade)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Media)
+                @Html.DisplayFor(modelItem => item.Thumbnail)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.UtenteFK)
+                @Html.DisplayFor(modelItem => item.Utente.Email)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

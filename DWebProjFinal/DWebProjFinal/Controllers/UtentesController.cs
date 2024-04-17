@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DWebProjFinal.Data;
 using DWebProjFinal.Models;
+using System.Drawing;
 
 namespace DWebProjFinal.Controllers
 {
@@ -54,15 +55,48 @@ namespace DWebProjFinal.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nome,Email,Telemovel,dataNasc,Biografia")] Utentes utentes)
+        public async Task<IActionResult> Create([Bind("Id,Nome,Email,Telemovel,dataNasc,Biografia")] Utentes utente, IFormFile PfpIcon)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(utentes);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                string nomeImagem = "";
+                bool haImagem = false;
+
+
+                
+                if (PfpIcon == null)   //se não houver ficheiro
+                {
+                    ModelState.AddModelError("", "Nenhuma imagem foi fornecida");   //mensagem de erro
+                    return View(utente);   //volta para o início com os dados já preenchidos
+                }
+                else   //se há ficheiro
+                {
+                    if (!(PfpIcon.ContentType == "image/png" || PfpIcon.ContentType == "image/jpeg"))   //se o ficheiro não for do tipo imagem
+                    {
+                        utente.Icon = "defaultIcon.png";   //usa-se uma imagem pre definida
+                    }
+                    else   //se for imagem
+                    {
+                        haImagem = true;
+                        Guid g = Guid.NewGuid();
+                        nomeImagem = g.ToString();
+                        string extensaoImagem = Path.GetExtension(PfpIcon.FileName).ToLowerInvariant();
+                        nomeImagem += extensaoImagem;
+                        utente.Icon = nomeImagem;   //guarda o nome da imagem na BD
+                    }
+                }
+
+                _context.Add(utente);   //adiciona os dados recebidos ao objeto
+                await _context.SaveChangesAsync();   //faz o commit
+
+                if (haImagem)   //guarda a imagem do Logo
+                {
+
+                }
+              return RedirectToAction(nameof(Index));   //redireciona para o início
+
             }
-            return View(utentes);
+            return View(utente);   //se o modelo de dados não for válido, algo correu mal e volta para o início
         }
 
         // GET: Utentes/Edit/5
@@ -86,7 +120,7 @@ namespace DWebProjFinal.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Email,Telemovel,dataNasc,Biografia")] Utentes utentes)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Icon,Email,Telemovel,dataNasc,Biografia")] Utentes utentes)
         {
             if (id != utentes.Id)
             {

@@ -12,9 +12,6 @@ namespace DWebProjFinal.Controllers
 {
     public class PaginasController : Controller
     {
-        /// <summary>
-        /// Atributo de referência à bd
-        /// </summary>
         private readonly ApplicationDbContext _context;
 
         public PaginasController(ApplicationDbContext context)
@@ -25,7 +22,8 @@ namespace DWebProjFinal.Controllers
         // GET: Paginas
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Paginas.ToListAsync());
+            var applicationDbContext = _context.Paginas.Include(p => p.Utente);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Paginas/Details/5
@@ -37,6 +35,7 @@ namespace DWebProjFinal.Controllers
             }
 
             var paginas = await _context.Paginas
+                .Include(p => p.Utente)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (paginas == null)
             {
@@ -49,6 +48,7 @@ namespace DWebProjFinal.Controllers
         // GET: Paginas/Create
         public IActionResult Create()
         {
+            ViewData["UtenteFK"] = new SelectList(_context.Utentes, "Id", "Email");
             return View();
         }
 
@@ -57,26 +57,53 @@ namespace DWebProjFinal.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Descricao,Dificuldade,Media,UtenteFK")] Paginas paginas)
+        public async Task<IActionResult> Create([Bind("Id,Name,Descricao,Dificuldade,UtenteFK")] Paginas pagina, IFormFile ImgThumbnail)
         {
-
-            //Avalia se os dados recebidos estão de acordo com o Model
             if (ModelState.IsValid)
             {
+                string nomeImagem = "";
+                bool haImagem = false;
 
-                //falta fazer a gestão do ficheiro que é uploaded
-
-                //Adiciona o modelo recebido ao atributo que referencia a bd
-                _context.Add(paginas);
-                //Adiciona o atributo _context à bd (commit)
+                // há ficheiro?
+                if (ImgThumbnail == null)
+                {
+                    // não há
+                    // crio msg de erro
+                    ModelState.AddModelError("",
+                       "Deve fornecer um logótipo");
+                    // devolver controlo à View
+                    return View(pagina);
+                }
+                else
+                {
+                    // há ficheiro, mas é uma imagem?
+                    if (!(ImgThumbnail.ContentType == "image/png" ||
+                         ImgThumbnail.ContentType == "image/jpeg"
+                       ))
+                    {
+                        // não
+                        // vamos usar uma imagem pre-definida
+                        pagina.Thumbnail = "defaultThumbnail.png";
+                    }
+                    else
+                    {
+                        // há imagem
+                        haImagem = true;
+                        // gerar nome imagem
+                        Guid g = Guid.NewGuid();
+                        nomeImagem = g.ToString();
+                        string extensaoImagem = Path.GetExtension(ImgThumbnail.FileName).ToLowerInvariant();
+                        nomeImagem += extensaoImagem;
+                        // guardar o nome do ficheiro na BD
+                        pagina.Thumbnail = nomeImagem;
+                    }
+                }
+                _context.Add(pagina);
                 await _context.SaveChangesAsync();
-                //Redireciona o utilizador para a página "Index" dentro da View "Cursos"
                 return RedirectToAction(nameof(Index));
             }
-
-            //Se os dados não forem aceites, voltamos à View com os dados previamente preenchidos
-            //Os dados são passados dentro do atributo "paginas"
-            return View(paginas);
+            ViewData["UtenteFK"] = new SelectList(_context.Utentes, "Id", "Email", pagina.UtenteFK);
+            return View(pagina);
         }
 
         // GET: Paginas/Edit/5
@@ -92,6 +119,7 @@ namespace DWebProjFinal.Controllers
             {
                 return NotFound();
             }
+            ViewData["UtenteFK"] = new SelectList(_context.Utentes, "Id", "Email", paginas.UtenteFK);
             return View(paginas);
         }
 
@@ -100,7 +128,7 @@ namespace DWebProjFinal.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Descricao,Dificuldade,Media,UtenteFK")] Paginas paginas)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Descricao,Dificuldade,Thumbnail,UtenteFK")] Paginas paginas)
         {
             if (id != paginas.Id)
             {
@@ -127,6 +155,7 @@ namespace DWebProjFinal.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["UtenteFK"] = new SelectList(_context.Utentes, "Id", "Email", paginas.UtenteFK);
             return View(paginas);
         }
 
@@ -139,6 +168,7 @@ namespace DWebProjFinal.Controllers
             }
 
             var paginas = await _context.Paginas
+                .Include(p => p.Utente)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (paginas == null)
             {

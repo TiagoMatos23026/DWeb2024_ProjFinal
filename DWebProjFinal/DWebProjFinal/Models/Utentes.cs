@@ -18,6 +18,10 @@ namespace DWebProjFinal.Models
         [StringLength(100)]
         public string Nome { get; set; }
 
+        [Display(Name = "Imagem de Perfil")]
+        [StringLength(50)]
+        public string? Icon { get; set; }
+
         [Required(ErrorMessage = "O Email é de preenchimento obrigatório")]
         [StringLength(100)]
         public string Email { get; set; }
@@ -29,7 +33,6 @@ namespace DWebProjFinal.Models
 
         [Display(Name = "Data de Nascimento (dd-mm-aaaa)")]
         [Required(ErrorMessage = "A Data de Nascimento é de preenchimento obrigatório")]
-        [StringLength(100)]
         public DateOnly dataNasc { get; set; }
 
         public string? Biografia { get; set; }

@@ -16,7 +16,7 @@ namespace DWebProjFinal.Models
 
         [Required(ErrorMessage = "O Tutorial precisa de um título")]
         [StringLength(100)]
-        [Display(Name="Título")]
+        [Display(Name = "Título")]
         public string Name { get; set; }
 
         [Display(Name = "Descrição")]
@@ -26,10 +26,11 @@ namespace DWebProjFinal.Models
         public int Dificuldade { get; set; }
 
         [Display(Name = "Thumbnail")] //Define o nome a aparecer no ecrã
-        public string? Media { get; set; } //Preenchimento facultativo
+        [StringLength(50)]
+        public string? Thumbnail { get; set; } //Preenchimento facultativo
 
         [ForeignKey(nameof(Utente))]
-        [Display(Name= "Chave Forasteira do Utente")]
+        [Display(Name = "Chave Forasteira do Utente")]
         public int UtenteFK { get; set; }
         public Utentes Utente { get; set; }
 

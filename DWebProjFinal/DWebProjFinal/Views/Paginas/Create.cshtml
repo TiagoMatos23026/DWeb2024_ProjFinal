@@ -10,40 +10,50 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+
+
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+
             <div class="form-group">
-                <label asp-for="Name" class="control-label">Título do Tutorial</label>
+                <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
 
+
             <div class="form-group">
-                <label asp-for="Descricao" class="control-label">Descrição do Tutorial</label>
+                <label asp-for="Descricao" class="control-label"></label>
                 <input asp-for="Descricao" class="form-control" />
                 <span asp-validation-for="Descricao" class="text-danger"></span>
             </div>
 
+
             <div class="form-group">
-                <label asp-for="Dificuldade" class="control-label">Dificuldade do Tutorial</label>
-                <input asp-for="Dificuldade" class="form-control" accept="1, 2, 3, 4, 5"/>
+                <label asp-for="Dificuldade" class="control-label"></label>
+                <input asp-for="Dificuldade" class="form-control" />
                 <span asp-validation-for="Dificuldade" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Media" class="control-label">Thumbnail</label>
-                <input asp-for="Media" class="form-control" type="file" accept=".png, .jpg, .jpeg"/>
-                <span asp-validation-for="Media" class="text-danger"></span>
-            </div>
 
             <div class="form-group">
-                <label asp-for="UtenteFK" class="control-label">Id do Utente que criou a Página</label>
-                <input asp-for="UtenteFK" class="form-control" />
-                <span asp-validation-for="UtenteFK" class="text-danger"></span>
+                <label asp-for="Thumbnail" class="control-label"></label>
+
+                <input type="file"
+                       name="ImgThumbnail"
+                       accept=".png,.jpg,.jpeg"
+                       class="form-control" />
+
+                <span asp-validation-for="Thumbnail" class="text-danger"></span>
             </div>
 
-            <br/>
+
+            <div class="form-group">
+                <label asp-for="UtenteFK" class="control-label"></label>
+                <select asp-for="UtenteFK" class ="form-control" asp-items="ViewBag.UtenteFK"></select>
+            </div>
+
 
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -57,7 +67,5 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
