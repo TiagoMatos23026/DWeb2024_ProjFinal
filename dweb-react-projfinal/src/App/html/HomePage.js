@@ -4,10 +4,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useEffect, useState, useContext } from "react";
 import { Outlet, Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.css';
+import { getUtenteAPI } from "../api/apiConnection";
 
 
 
 function FrontPage() {
+
+    const user = getUtenteAPI(1);
 
     const ctx = useContext(AppContext);
     
@@ -18,7 +21,7 @@ function FrontPage() {
     return <>
         <div className="container-fluid">
             <div className="row justify-content-start">
-                <h4>Olá {ctx.context.user}</h4>
+                <h4> {user} </h4>
 
             </div>
         </div>

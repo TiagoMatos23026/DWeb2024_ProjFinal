@@ -71,7 +71,9 @@ namespace DWebProjFinal.Controllers
                 }
                 else   //se há ficheiro
                 {
-                    if (!(PfpIcon.ContentType == "image/png" || PfpIcon.ContentType == "image/jpeg"))   //se o ficheiro não for do tipo imagem
+                    if (!(PfpIcon.ContentType == "image/png" ||
+                        PfpIcon.ContentType == "image/jpeg" ||
+                        PfpIcon.ContentType == "image/jpg"))   //se o ficheiro não for do tipo imagem
                     {
                         utente.Icon = "defaultIcon.png";   //usa-se uma imagem pre definida
                     }

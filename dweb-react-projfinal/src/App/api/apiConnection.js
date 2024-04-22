@@ -1,5 +1,23 @@
-export function getPaginasAPI() {
-    return fetch("https://spring-server.azurewebsites.net/todo/getTarefas");
+export function getUtenteAPI(idUtente) {
+    var user = null;
+
+    var requestOptions = {
+        method: 'GET',
+        redirect: 'follow'
+    };
+
+    fetch("https://localhost:7027/api/UtentesAPI/" + idUtente, requestOptions)
+        .then(res => res.json())
+        .then(result => 
+            user = result
+        )
+        .catch(error => console.log('error', error));
+
+
+
+
+
+    return user;
 }
 
 {/*export function getPaginasAPIPaged(idPagina) {

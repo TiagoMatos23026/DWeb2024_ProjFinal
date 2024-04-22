@@ -48,7 +48,7 @@ namespace DWebProjFinal.Controllers
         // GET: Paginas/Create
         public IActionResult Create()
         {
-            ViewData["UtenteFK"] = new SelectList(_context.Utentes, "Id", "Email");
+            ViewData["UtenteFK"] = new SelectList(_context.Utentes, "Id", "Nome");
             return View();
         }
 
@@ -70,7 +70,7 @@ namespace DWebProjFinal.Controllers
                     // não há
                     // crio msg de erro
                     ModelState.AddModelError("",
-                       "Deve fornecer um logótipo");
+                       "Deve fornecer uma thumbnail");
                     // devolver controlo à View
                     return View(pagina);
                 }
@@ -78,7 +78,8 @@ namespace DWebProjFinal.Controllers
                 {
                     // há ficheiro, mas é uma imagem?
                     if (!(ImgThumbnail.ContentType == "image/png" ||
-                         ImgThumbnail.ContentType == "image/jpeg"
+                         ImgThumbnail.ContentType == "image/jpeg" ||
+                         ImgThumbnail.ContentType == "image/jpg"
                        ))
                     {
                         // não
@@ -100,9 +101,15 @@ namespace DWebProjFinal.Controllers
                 }
                 _context.Add(pagina);
                 await _context.SaveChangesAsync();
+
+                if (haImagem)
+                {
+
+                }
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UtenteFK"] = new SelectList(_context.Utentes, "Id", "Email", pagina.UtenteFK);
+            ViewData["UtenteFK"] = new SelectList(_context.Utentes, "Id", "Nome", pagina.UtenteFK);
             return View(pagina);
         }
 
