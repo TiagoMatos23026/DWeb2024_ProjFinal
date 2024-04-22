@@ -1,23 +1,12 @@
-export function getUtenteAPI(idUtente) {
-    var user = null;
+export function getUtentesAPI() {
+    var users = null;
 
-    var requestOptions = {
-        method: 'GET',
-        redirect: 'follow'
-    };
-
-    fetch("https://localhost:7027/api/UtentesAPI/" + idUtente, requestOptions)
+    fetch("https://localhost:7027/api/UtentesAPI/")
         .then(res => res.json())
-        .then(result => 
-            user = result
-        )
+        .then(result => users = result)
         .catch(error => console.log('error', error));
 
-
-
-
-
-    return user;
+    return users;
 }
 
 {/*export function getPaginasAPIPaged(idPagina) {
