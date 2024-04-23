@@ -1,12 +1,14 @@
-export function getUtentesAPI() {
+/*export async function getUtentesAPI() {
     var users = null;
-
-    fetch("https://localhost:7027/api/UtentesAPI/")
+    users = await fetch("https://localhost:7027/api/UtentesAPI/")
         .then(res => res.json())
-        .then(result => users = result)
         .catch(error => console.log('error', error));
 
     return users;
+}*/
+
+export function getUtentesAPI(){
+    return fetch("https://localhost:7027/api/UtentesAPI/")
 }
 
 {/*export function getPaginasAPIPaged(idPagina) {

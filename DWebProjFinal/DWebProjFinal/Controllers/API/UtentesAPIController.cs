@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using DWebProjFinal.Data;
 using DWebProjFinal.Models;
 
-namespace DWebProjFinal.Controllers
+namespace DWebProjFinal.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
