@@ -4,24 +4,27 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
+<h1>Criar Página</h1>
 
-<h4>Paginas</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="Descricao" class="control-label"></label>
                 <input asp-for="Descricao" class="form-control" />
                 <span asp-validation-for="Descricao" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="Dificuldade" class="control-label"></label>
                 <input asp-for="Dificuldade" class="form-control" />
@@ -32,7 +35,7 @@
                 <label asp-for="Thumbnail" class="control-label"></label>
 
                 <input type="file"
-                       name="PfpIcon"
+                       name="ImgThumbnail"
                        accept=".png,.jpg,.jpeg"
                        class="form-control" />
                 <span asp-validation-for="Thumbnail" class="text-danger"></span>
@@ -42,6 +45,7 @@
                 <label asp-for="UtenteFK" class="control-label"></label>
                 <select asp-for="UtenteFK" class ="form-control" asp-items="ViewBag.UtenteFK"></select>
             </div>
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
@@ -50,7 +54,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Voltar</a>
 </div>
 
 @section Scripts {

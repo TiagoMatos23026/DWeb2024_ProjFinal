@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DWebProjFinal.Data;
 using DWebProjFinal.Models;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 
 namespace DWebProjFinal.Controllers
 {
@@ -14,8 +16,13 @@ namespace DWebProjFinal.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public PaginasController(ApplicationDbContext context)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        public PaginasController(
+            ApplicationDbContext context,
+            IWebHostEnvironment webHostEnvironment)
         {
+            _webHostEnvironment = webHostEnvironment;
             _context = context;
         }
 
@@ -99,13 +106,55 @@ namespace DWebProjFinal.Controllers
                         pagina.Thumbnail = nomeImagem;
                     }
                 }
-                _context.Add(pagina);
-                await _context.SaveChangesAsync();
 
-                if (haImagem)
+                //a imagem ao chegar aqui está pronta a ser uploaded
+                if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
                 {
+                    //encolher a imagem a um tamanho apropriado
+                    //procurar package no nuget que trate disso
+
+                    //determinar o local de armazenamento da imagem dentro do disco rígido
+                    string localizacaoImagem = _webHostEnvironment.WebRootPath;
+                    localizacaoImagem = Path.Combine(localizacaoImagem, "imagens");
+
+                    //será que o local existe?
+                    if (!Directory.Exists(localizacaoImagem))   //se não houver local para guardar a imagem...
+                    {
+                        Directory.CreateDirectory(localizacaoImagem);   //criar um novo local
+                    }
+
+                    //existindo local para guardar a imagem, informar o servidor do seu nome
+                    //e de onde vai ser guardada
+                    string nomeFicheiro = Path.Combine(localizacaoImagem, nomeImagem);
+
+                    //guardar a imagem no disco rígido
+                    using var stream = new FileStream(nomeFicheiro, FileMode.Create);
+                    await ImgThumbnail.CopyToAsync(stream);
 
                 }
+
+                if (pagina.UtenteFK == 0) //verifica se o Utente foi selecionado
+                {
+                    ModelState.AddModelError("", "Por favor selecione um Utente.");
+                    ViewData["UtenteFK"] = new SelectList(_context.Utentes, "Id", "Nome", pagina.UtenteFK);
+                    return View(pagina);
+                }
+
+                var utente = await _context.Utentes.FindAsync(pagina.UtenteFK);   //busca as informações do Utente
+
+
+                if (utente == null)   //verifica se o utente existe
+                {
+                    ModelState.AddModelError("", "Selected Utente does not exist.");
+                    ViewData["UtenteFK"] = new SelectList(_context.Utentes, "Id", "Nome", pagina.UtenteFK);
+                    return View(pagina);
+                }
+
+                //guarda o objeto dentro do modelo a ser uploaded
+                pagina.Utente = utente;
+
+                _context.Add(pagina);
+                await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));
             }

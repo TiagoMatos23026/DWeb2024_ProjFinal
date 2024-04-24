@@ -8,16 +8,28 @@ using Microsoft.EntityFrameworkCore;
 using DWebProjFinal.Data;
 using DWebProjFinal.Models;
 using System.Drawing;
+using Microsoft.AspNetCore.Hosting;
 
 namespace DWebProjFinal.Controllers
 {
     public class UtentesController : Controller
     {
+        /// <summary>
+        /// Referência à base de dados
+        /// </summary>
         private readonly ApplicationDbContext _context;
 
-        public UtentesController(ApplicationDbContext context)
+        /// <summary>
+        /// Objeto que contém os dados do servidor
+        /// </summary>
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        public UtentesController(
+            ApplicationDbContext context,
+            IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Utentes
@@ -63,7 +75,7 @@ namespace DWebProjFinal.Controllers
                 bool haImagem = false;
 
 
-                
+
                 if (PfpIcon == null)   //se não houver ficheiro
                 {
                     ModelState.AddModelError("", "Nenhuma imagem foi fornecida");   //mensagem de erro
@@ -91,11 +103,34 @@ namespace DWebProjFinal.Controllers
                 _context.Add(utente);   //adiciona os dados recebidos ao objeto
                 await _context.SaveChangesAsync();   //faz o commit
 
-                if (haImagem)   //guarda a imagem do Logo
+
+                //a imagem ao chegar aqui está pronta a ser uploaded
+                if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
                 {
+                    //encolher a imagem a um tamanho apropriado
+                    //procurar package no nuget que trate disso
+
+                    //determinar o local de armazenamento da imagem dentro do disco rígido
+                    string localizacaoImagem = _webHostEnvironment.WebRootPath;
+                    localizacaoImagem = Path.Combine(localizacaoImagem, "imagens");
+
+                    //será que o local existe?
+                    if (!Directory.Exists(localizacaoImagem))   //se não houver local para guardar a imagem...
+                    {
+                        Directory.CreateDirectory(localizacaoImagem);   //criar um novo local
+                    }
+
+                    //existindo local para guardar a imagem, informar o servidor do seu nome
+                    //e de onde vai ser guardada
+                    string nomeFicheiro = Path.Combine(localizacaoImagem, nomeImagem);
+
+                    //guardar a imagem no disco rígido
+                    using var stream = new FileStream(nomeFicheiro, FileMode.Create);
+                    await PfpIcon.CopyToAsync(stream);
 
                 }
-              return RedirectToAction(nameof(Index));   //redireciona para o início
+
+                return RedirectToAction(nameof(Index));   //redireciona para o início
 
             }
             return View(utente);   //se o modelo de dados não for válido, algo correu mal e volta para o início
