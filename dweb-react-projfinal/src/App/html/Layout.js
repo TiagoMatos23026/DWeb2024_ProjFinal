@@ -6,6 +6,7 @@ function Layout() {
     const [showModal, setShowModal] = useState(false);
     const [isLoggedIn, setLogIn] = useState(false);
 
+    
 
     return <>
         <div>
@@ -31,18 +32,18 @@ function Layout() {
                         </li>
                     </ul>}
 
-                    {!isLoggedIn && <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+                    {!isLoggedIn && <ul className="navbar-nav">
                         <li className="nav-item">
                             <Link className="btn btn-info ms-3" to="/CriarUtilizador">Registar</Link>
                         </li>
                         <li className="nav-item">
-                            <Link className="btn btn-warning ms-3" to="/Login">Log In</Link>
+                            <button className="btn btn-warning ms-3" onClick={() => {setLogIn(true)}}/*to="/Login"*/ >Log In</button>
                         </li>
                     </ul>}
 
                     {isLoggedIn && <ul className="navbar-nav">
                         <li className="nav-item">
-                            <button className="btn btn-warning ms-3" to="/Logout">Log Out</button>
+                            <button className="btn btn-warning ms-3" onClick={() => {setLogIn(false)}}/*to="/Logout"*/ >Log Out</button>
                         </li>
                     </ul>}
 

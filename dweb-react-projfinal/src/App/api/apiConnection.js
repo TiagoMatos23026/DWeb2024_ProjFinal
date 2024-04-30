@@ -11,6 +11,10 @@ export function getUtentesAPI(){
     return fetch("https://localhost:7027/api/UtentesAPI/")
 }
 
+export function getPagesAPI(){
+    return fetch("https://localhost:7027/api/PaginasAPI/")
+}
+
 {/*export function getPaginasAPIPaged(idPagina) {
     return fetch("https://spring-server.azurewebsites.net/todo/getTarefasPaged?idPagina="+idPagina
     +"&paginaSize=5");
