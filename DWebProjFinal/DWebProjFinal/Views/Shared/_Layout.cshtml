@@ -15,7 +15,7 @@
             <div class="container-fluid">
 
                 <!--Label da navbar com o Título do website-->
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">HowToMaster</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">HowToMasterServer</a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -35,6 +35,8 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Paginas" asp-action="Index">Páginas</a>
                         </li>
                     </ul>
+
+                    <!--Parte que vai depender se o utilizador está logged in ou não-->
                     <partial name="_LoginPartial" />
                 </div>
             </div>
