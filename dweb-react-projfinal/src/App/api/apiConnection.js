@@ -8,11 +8,11 @@
 }*/
 
 export function getUtentesAPI(){
-    return fetch("https://localhost:7027/api/UtentesAPI/")
+    return fetch("http://localhost:5101/api/UtentesAPI")
 }
 
 export function getPagesAPI(){
-    return fetch("https://localhost:7027/api/PaginasAPI/")
+    return fetch("http://localhost:5101/api/PaginasAPI")
 }
 
 {/*export function getPaginasAPIPaged(idPagina) {

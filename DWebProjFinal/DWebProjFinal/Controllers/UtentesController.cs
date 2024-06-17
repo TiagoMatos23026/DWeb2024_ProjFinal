@@ -9,9 +9,11 @@ using DWebProjFinal.Data;
 using DWebProjFinal.Models;
 using System.Drawing;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DWebProjFinal.Controllers
 {
+    [Authorize]
     public class UtentesController : Controller
     {
         /// <summary>
@@ -33,12 +35,14 @@ namespace DWebProjFinal.Controllers
         }
 
         // GET: Utentes
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Utentes.ToListAsync());
         }
 
         // GET: Utentes/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)

@@ -42,11 +42,13 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Dificuldade)
             </td>
+                <td>
+                    <img src="~/imagens/@Html.DisplayFor(modelItem => item.Thumbnail)"
+                         alt="Icon do Utilizador @Html.DisplayFor(modelItem => item.Thumbnail)"
+                         title="@Html.DisplayFor(modelItem => item.Thumbnail)" />
+                </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Thumbnail)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Utente.Email)
+                @Html.DisplayFor(modelItem => item.Utente.Nome)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
