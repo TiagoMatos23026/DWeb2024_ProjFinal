@@ -31,9 +31,14 @@ namespace DWebProjFinal.Models
         [StringLength(100)]
         public string Telemovel { get; set; }
 
+        [Display(Name = "Palavra-Passe")]
+        [Required(ErrorMessage = "A Palavra-Passe é de preenchimento obrigatório")]
+        [StringLength(100)]
+        public string Password { get; set; }
+
         [Display(Name = "Data de Nascimento (dd-mm-aaaa)")]
         [Required(ErrorMessage = "A Data de Nascimento é de preenchimento obrigatório")]
-        public DateOnly dataNasc { get; set; }
+        public string dataNasc { get; set; }
 
         public string? Biografia { get; set; }
 

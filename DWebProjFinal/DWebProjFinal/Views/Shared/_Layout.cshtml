@@ -34,6 +34,15 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Paginas" asp-action="Index">Páginas</a>
                             </li>
                         }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Utentes" asp-action="Index">Ver Lista de Utilizadores</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Paginas" asp-action="Index">Ver Coleção de Páginas</a>
+                            </li>
+                        }
                     </ul>
 
                     <!--Parte que vai depender se o utilizador está logged in ou não-->

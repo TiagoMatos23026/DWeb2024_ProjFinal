@@ -13,5 +13,6 @@ namespace DWebProjFinal.Data
         public DbSet<DWebProjFinal.Models.Utentes> Utentes { get; set; } = default!;
         public DbSet<DWebProjFinal.Models.Paginas> Paginas { get; set; } = default!;
         public DbSet<DWebProjFinal.Models.Categorias> Categorias { get; set; } = default!;
+        public DbSet<DWebProjFinal.Models.LoginUtilizador> LoginUtilizador { get; set; } = default!;
     }
 }

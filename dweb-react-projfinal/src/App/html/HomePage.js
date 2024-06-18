@@ -1,5 +1,5 @@
-import { useEffect, useState, useContext } from "react";
-import { Outlet, Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import { getUtentesAPI, getPagesAPI } from "../api/apiConnection";
@@ -7,8 +7,6 @@ import { getUtentesAPI, getPagesAPI } from "../api/apiConnection";
 function FrontPage() {
     const [pagesList, setPagesList] = useState([]);
     const [utentesList, setUtentesList] = useState([]);
-    const [showModal, setShowModal] = useState(false);
-    const [isLoggedIn, setLogIn] = useState(false);
     const navigate = useNavigate();
 
     const fetchData = async () => {
@@ -33,12 +31,14 @@ function FrontPage() {
     };
 
     const renderPages = () => {
+        const baseUrl = "http://localhost:5101/imagens/"; // Adjust this base URL as needed
         return pagesList.map((page, index) => {
             const autor = utentesList.find(utente => utente.id === page.utenteFK)?.nome || 'Desconhecido';
+            const imagePath = `${baseUrl}${page.thumbnail}`;
             return (
                 <div className="col-12 col-sm-6 col-md-4 col-lg-3 mt-3" key={index}>
                     <div className="card p-3 border border-2 rounded-3" style={{ height: '100%' }} onClick={() => handleCardClick(page)}>
-                        <img className="card-img-top" src="https://picsum.photos/id/1/200/300" alt="Page image" style={{ height: '150px', objectFit: 'cover' }} />
+                        <img className="card-img-top" src={imagePath} alt="Page image" style={{ height: '150px', objectFit: 'cover' }} />
                         <div className="card-body">
                             <h5 className="card-title">{page.name}</h5>
                             <h6 className="card-subtitle mb-2 text-muted">Autor: {autor}</h6>

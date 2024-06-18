@@ -71,7 +71,7 @@ namespace DWebProjFinal.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nome,Email,Telemovel,dataNasc,Biografia")] Utentes utente, IFormFile PfpIcon)
+        public async Task<IActionResult> Create([Bind("Id,Nome,Email,Telemovel,Password,dataNasc,Biografia")] Utentes utente, IFormFile PfpIcon)
         {
             if (ModelState.IsValid)
             {
@@ -161,7 +161,7 @@ namespace DWebProjFinal.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Icon,Email,Telemovel,dataNasc,Biografia")] Utentes utentes)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Icon,Email,Telemovel,Password,dataNasc,Biografia")] Utentes utentes)
         {
             if (id != utentes.Id)
             {

@@ -1,10 +1,9 @@
-// Layout.js
-
 import { useState, useEffect } from "react";
-import { Link, useNavigate, Outlet } from "react-router-dom";
+import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.css';
-import { getPagesAPI, getUtentesAPI } from "../api/apiConnection"; // Assuming these functions fetch pages and utentes from an API
-import SearchPage from "./SearchPage";
+import { getPagesAPI, getUtentesAPI } from "../../api/apiConnection"; // Assuming these functions fetch pages and utentes from an API
+import SearchPage from "../SearchPage";
+import LoginPage from "../LoginPage";
 
 function Layout() {
     const [isLoggedIn, setLogIn] = useState(false);
@@ -14,6 +13,7 @@ function Layout() {
     const [utentesList, setUtentesList] = useState([]);
     const [showSearchResults, setShowSearchResults] = useState(false); // State to control when to show search results
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         fetchData();
@@ -42,10 +42,18 @@ function Layout() {
         setShowSearchResults(false); // Hide search results when clicking on the search link
     };
 
+    const handleHomePageClick = () => {
+        if (location.pathname === "/HomePage") {
+            window.location.reload();
+        } else {
+            navigate("/HomePage");
+        }
+    };
+
     return (
         <>
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-                <Link className="navbar-brand ms-3" to="/HomePage">HowToMaster</Link>
+                <Link className="navbar-brand ms-3" to="/HomePage" onClick={handleHomePageClick}>HowToMaster</Link>
 
                 <div className="collapse navbar-collapse d-flex" id="navbarSupportedContent">
                     <form onSubmit={handleSearch} className="d-flex me-auto">
@@ -59,7 +67,7 @@ function Layout() {
                         <button className="btn btn-success ms-2" type="submit">Pesquisar</button>
                     </form>
 
-                    <ul className="navbar-nav d-flex align-items-center">
+                    <ul className="navbar-nav d-flex align-items-center me-3">
                         {isLoggedIn ? (
                             <>
                                 <li className="nav-item">
@@ -75,10 +83,10 @@ function Layout() {
                         ) : (
                             <>
                                 <li className="nav-item">
-                                    <Link className="btn btn-info ms-2" to="/CriarUtilizador">Registar</Link>
+                                    <Link className="btn btn-info ms-2" to="RegisterPage">Registar</Link>
                                 </li>
                                 <li className="nav-item">
-                                    <button className="btn btn-warning ms-2" onClick={() => setLogIn(true)}>Log In</button>
+                                    <Link className="btn btn-warning ms-2" to="LoginPage">Log In</Link>
                                 </li>
                             </>
                         )}
