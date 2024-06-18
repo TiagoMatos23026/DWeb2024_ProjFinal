@@ -26,6 +26,12 @@
             </div>
 
             <div class="form-group">
+                <label asp-for="Conteudo" class="control-label"></label>
+                <input asp-for="Conteudo" class="form-control" />
+                <span asp-validation-for="Conteudo" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
                 <label asp-for="Dificuldade" class="control-label"></label>
                 <input asp-for="Dificuldade" class="form-control" />
                 <span asp-validation-for="Dificuldade" class="text-danger"></span>
@@ -42,7 +48,7 @@
             </div>
 
             <div class="form-group">
-                @* mostra a 'dropdown' com a lista de Cursos *@
+                @* mostra a 'dropdown' com a lista de Utilizadores *@
                 <label asp-for="UtenteFK" class="control-label"></label>
                 <select asp-for="UtenteFK" class="form-control" asp-items="ViewBag.UtenteFK">
                     <option value="-1">-- Escolha um utente, por favor --</option>
@@ -50,7 +56,7 @@
             </div>
 
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Create" class="mt-1 btn btn-primary" />
             </div>
         </form>
     </div>

@@ -68,7 +68,7 @@ namespace DWebProjFinal.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Descricao,Dificuldade,UtenteFK")] Paginas pagina, IFormFile ImgThumbnail)
+        public async Task<IActionResult> Create([Bind("Id,Name,Descricao,Conteudo,Dificuldade,UtenteFK")] Paginas pagina, IFormFile ImgThumbnail)
         {
             if (pagina.UtenteFK == 0) //verifica se o Utente foi selecionado
             {
@@ -163,8 +163,6 @@ namespace DWebProjFinal.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
-            ViewData["UtenteFK"] = new SelectList(_context.Utentes, "Id", "Nome", pagina.UtenteFK);
-            return View(pagina);
         }
 
         // GET: Paginas/Edit/5
@@ -189,7 +187,7 @@ namespace DWebProjFinal.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Descricao,Dificuldade,Thumbnail,UtenteFK")] Paginas paginas)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Descricao,Dificuldade,Conteudo,Thumbnail,UtenteFK")] Paginas paginas)
         {
             if (id != paginas.Id)
             {

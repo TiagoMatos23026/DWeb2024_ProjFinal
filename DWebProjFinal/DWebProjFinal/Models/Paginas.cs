@@ -22,6 +22,9 @@ namespace DWebProjFinal.Models
         [Display(Name = "Descrição")]
         public string? Descricao { get; set; } //Preenchimento facultativo
 
+        [Display(Name = "Conteudo")]
+        public string Conteudo { get; set; }
+
         [Required(ErrorMessage = "O Tutorial precisa de uma dificuldade")]
         public int Dificuldade { get; set; }
 
