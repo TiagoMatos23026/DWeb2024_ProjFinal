@@ -44,19 +44,21 @@
                     <img src="~/imagens/@Html.DisplayFor(modelItem => item.Icon)"
                          alt="Icon do Utilizador @Html.DisplayFor(modelItem => item.Nome)"
                          title="@Html.DisplayFor(modelItem => item.Icon)"
-                         class="fixed-height-img"
-                         />
+                         class="fixed-height-img" />
                 </td>
 
                 <td>
                     @Html.DisplayFor(modelItem => item.Biografia)
                 </td>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <td>
 
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Apagar</a>
-                </td>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Apagar</a>
+                    </td>
+                }
             </tr>
         }
     </tbody>

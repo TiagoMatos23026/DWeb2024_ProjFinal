@@ -87,7 +87,7 @@ namespace DWebProjFinal.Controllers.API
         // POST: api/UtentesAPI
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Utentes>> PostUtentes([Bind("Id,Nome,Email,Telemovel,Password,dataNasc,Biografia")] Utentes utente, IFormFile? iconFile)
+        public async Task<ActionResult<Utentes>> PostUtentes([FromForm] Utentes utente, IFormFile? iconFile)
         {
             string nomeImagem = "";
             bool haImagem = false;
