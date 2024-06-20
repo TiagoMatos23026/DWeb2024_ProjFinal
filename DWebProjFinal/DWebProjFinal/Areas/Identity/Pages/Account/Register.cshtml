@@ -4,8 +4,7 @@
     ViewData["Title"] = "Registar";
 }
 
-<h1>Registar novo utilizador</h1>
-<h2>Criar uma nova conta.</h2>
+<h1>Registar novo staff</h1>
 <hr />
 
 
@@ -29,34 +28,6 @@
                 <label asp-for="Input.ConfirmPassword">Confirm Password</label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
-
-        </div>
-
-
-        <div class="col-md-6 col-md-offset-2">
-            @* vamos aqui recolher os dados específicos do Utente *@
-            <div class="form-floating mb-3">
-                <input asp-for="Input.utente.Nome" class="form-control" aria-required="true" />
-                <label asp-for="Input.utente.Nome"></label>
-                <span asp-validation-for="Input.utente.Nome" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.utente.dataNasc" class="form-control" aria-required="true" />
-                <label asp-for="Input.utente.dataNasc"></label>
-                <span asp-validation-for="Input.utente.dataNasc" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.utente.Telemovel" class="form-control" aria-required="true" />
-                <label asp-for="Input.utente.Telemovel"></label>
-                <span asp-validation-for="Input.utente.Telemovel" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.utente.Email" class="form-control" aria-required="true" />
-                <label asp-for="Input.utente.Email"></label>
-                <span asp-validation-for="Input.utente.Email" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="col-md-4">
             <br />
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Registar</button>
         </div>

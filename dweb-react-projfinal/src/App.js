@@ -6,7 +6,7 @@ import ViewPage from './App/html/ViewPage';
 import SearchPage from './App/html/SearchPage';
 import LoginPage from './App/html/LoginPage';
 
-import { createContext, useEffect, useState } from 'react'
+import { createContext, useEffect, useState, useContext } from 'react'
 import {
     BrowserRouter as Router,
     Routes,
@@ -14,20 +14,16 @@ import {
   } from 'react-router-dom';
 import RegisterPage from './App/html/RegisterPage';
 
-var contextInterface = {
-    context: { user: "Tiago", themeIsLight: false },
-    setContext: () => { }
-}
+export const AuthContext = createContext({ });
 
-export const AppContext = createContext({ ...contextInterface });
-
+export const useAuth = () => useContext(AuthContext);
 
 function App() {
 
-    const [ctx, setCtx] = useState({ ...contextInterface.context });
+    const [user, setUser] = useState(null);
 
     return (
-        <AppContext.Provider value={{ context: ctx, setContext: setCtx }} >
+        <AuthContext.Provider value={{user, setUser}} >
             <Router>
                 <Routes>
                     <Route className="container" path="/" element={<Layout />}>
@@ -39,8 +35,10 @@ function App() {
                     </Route>
                 </Routes>
             </Router>
-        </AppContext.Provider>
+        </AuthContext.Provider>
     );
 }
+
+
 
 export default App;

@@ -26,12 +26,17 @@ const RegisterPage = () => {
 
     const submitData = new FormData();
     submitData.append('nome', formData.nome);
-    submitData.append('icon', formData.icon); 
+    submitData.append('icon', formData.icon);
     submitData.append('email', formData.email);
     submitData.append('telemovel', formData.telemovel);
     submitData.append('password', formData.password);
     submitData.append('dataNasc', formData.dataNasc);
     submitData.append('biografia', formData.biografia);
+
+    const loginData = {
+      email: formData.email,
+      password: formData.password
+    };
 
     try {
       const response = await fetch('http://localhost:5101/api/UtentesAPI', {
@@ -41,6 +46,26 @@ const RegisterPage = () => {
 
       if (response.ok) {
         const responseData = await response.json();
+
+        try {
+          const response = await fetch('http://localhost:5101/api/LoginUtilizadorAPI', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(loginData)
+          });
+
+          if (response.ok) {
+            const responseData = await response.json();
+            console.log('Response:', responseData);
+          } else {
+            console.error('Error submitting form:', response.statusText);
+          }
+        } catch (error) {
+          console.error('Error submitting form:', error);
+        }
+
         console.log('Response:', responseData);
       } else {
         console.error('Error submitting form:', response.statusText);
@@ -50,10 +75,7 @@ const RegisterPage = () => {
     }
 
     // Login request
-    const loginData = {
-      email: formData.email,
-      password: formData.password
-    };
+
 
     try {
       const response = await fetch('http://localhost:5101/api/LoginUtilizadorAPI', {

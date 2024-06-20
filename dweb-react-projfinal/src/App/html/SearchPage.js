@@ -12,7 +12,7 @@ function SearchPage({ searchResults }) {
                     <img className="card-img-top" src={`${baseUrl}${page.thumbnail}`} alt="Page image" style={{ height: '150px', objectFit: 'cover' }} />
                     <div className="card-body">
                         <h5 className="card-title">{page.name}</h5>
-                        <h6 className="card-subtitle mb-2 text-muted">Author: {page.author}</h6>
+                        <h6 className="card-subtitle mb-2 text-muted">Autor: {page.autor}</h6>
                     </div>
                 </div>
             </div>

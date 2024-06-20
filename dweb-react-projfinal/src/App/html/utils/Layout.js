@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import { getPagesAPI, getUtentesAPI } from "../../api/apiConnection"; // Assuming these functions fetch pages and utentes from an API
 import SearchPage from "../SearchPage";
 import LoginPage from "../LoginPage";
+import { useAuth } from "../../../App";
 
 function Layout() {
     const [isLoggedIn, setLogIn] = useState(false);
@@ -50,6 +51,8 @@ function Layout() {
         }
     };
 
+    const { user, setUser } = useAuth();
+
     return (
         <>
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
@@ -68,7 +71,7 @@ function Layout() {
                     </form>
 
                     <ul className="navbar-nav d-flex align-items-center me-3">
-                        {isLoggedIn ? (
+                        {user != null ? (
                             <>
                                 <li className="nav-item">
                                     <Link className="btn btn-primary ms-2" to="/VerPerfil">Meu Perfil</Link>
@@ -77,7 +80,7 @@ function Layout() {
                                     <Link className="btn btn-danger ms-2" to="/CriarPagina">Criar Página</Link>
                                 </li>
                                 <li className="nav-item">
-                                    <button className="btn btn-warning ms-2" onClick={() => setLogIn(false)}>Log Out</button>
+                                    <button className="btn btn-warning ms-2">Log Out</button>
                                 </li>
                             </>
                         ) : (
