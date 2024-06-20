@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
     nome: '',
-    icon: null,
+    icon: '',
     email: '',
     telemovel: '',
     password: '',
@@ -22,29 +22,21 @@ const RegisterPage = () => {
   };
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    const submitData = {
-      nome: formData.nome,
-      icon: formData.icon ? formData.icon.name : null, // Save the file name instead of the file
-      email: formData.email,
-      telemovel: formData.telemovel,
-      password: formData.password,
-      dataNasc: formData.dataNasc,
-      biografia: formData.biografia,
-    };
+    const submitData = new FormData();
+    submitData.append('nome', formData.nome);
+    submitData.append('icon', formData.icon); 
+    submitData.append('email', formData.email);
+    submitData.append('telemovel', formData.telemovel);
+    submitData.append('password', formData.password);
+    submitData.append('dataNasc', formData.dataNasc);
+    submitData.append('biografia', formData.biografia);
 
-    const loginData = {
-      email: formData.email,
-      password: formData.password
-    }
-    
     try {
       const response = await fetch('http://localhost:5101/api/UtentesAPI', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(submitData)
+        body: submitData
       });
 
       if (response.ok) {
@@ -56,6 +48,12 @@ const RegisterPage = () => {
     } catch (error) {
       console.error('Error submitting form:', error);
     }
+
+    // Login request
+    const loginData = {
+      email: formData.email,
+      password: formData.password
+    };
 
     try {
       const response = await fetch('http://localhost:5101/api/LoginUtilizadorAPI', {
@@ -81,8 +79,6 @@ const RegisterPage = () => {
     <div className="d-flex justify-content-center align-items-center mt-3 bg-white">
       <div className="bg-dark text-white p-4 rounded-3 shadow">
         <h2 className="text-center">Registar</h2>
-
-
         <form onSubmit={handleSubmit}>
           <div className="mb-2">
             <label htmlFor="nome" className="form-label">Nome:</label>
@@ -155,8 +151,9 @@ const RegisterPage = () => {
             />
           </div>
           <div className="mb-2">
-            <label htmlFor="dataNasc" className="form-label">Data de Nascimento:</label>
+            <label htmlFor="dataNasc" className="form-label">Data de Nascimento (dd-mm-aaaa):</label>
             <input
+              type="text"
               id="dataNasc"
               name="dataNasc"
               className="form-control"

@@ -7,44 +7,62 @@
 <h1>Detalhes</h1>
 
 <div>
-    <h4>Utentes</h4>
+    <h4>Utente</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Nome)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Nome)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Icon)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Icon)
+        <dd class="col-sm-10">
+            <img src="~/imagens/@Html.DisplayFor(model => model.Icon)"
+                 alt="Icon do Utilizador @Html.DisplayFor(model => model.Nome)"
+                 title="@Html.DisplayFor(model => model.Icon)" />
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Telemovel)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Telemovel)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.dataNasc)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.dataNasc)
-        </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Biografia)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Biografia)
+        </dd>
+    </dl>
+    <h4>Dados Pessoais</h4>
+    <hr />
+    <dl class="row">
+        
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Telemovel)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Telemovel)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.dataNasc)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.dataNasc)
+        </dd>
+    </dl>
+
+    <h4>Dados de Login</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.Email)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Password)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Password)
         </dd>
     </dl>
 </div>

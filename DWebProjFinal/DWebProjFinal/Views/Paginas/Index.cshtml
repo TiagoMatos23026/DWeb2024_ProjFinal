@@ -9,6 +9,14 @@
 <p>
     <a asp-action="Create">Criar nova Página</a>
 </p>
+
+<style>
+    .fixed-height-img {
+        height: 100px;
+        width: auto;
+    }
+</style>
+
 <table class="table">
     <thead>
         <tr>
@@ -42,17 +50,18 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Dificuldade)
             </td>
-                <td>
-                    <img src="~/imagens/@Html.DisplayFor(modelItem => item.Thumbnail)"
-                         alt="Icon do Utilizador @Html.DisplayFor(modelItem => item.Thumbnail)"
-                         title="@Html.DisplayFor(modelItem => item.Thumbnail)" />
-                </td>
+            <td>
+                <img src="~/imagens/@item.Thumbnail"
+                     alt="Icon do Utilizador @item.Thumbnail"
+                     title="@item.Thumbnail"
+                     class="fixed-height-img" />
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Utente.Nome)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Detailhes</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
                 <a asp-action="Delete" asp-route-id="@item.Id">Apagar</a>
             </td>
         </tr>

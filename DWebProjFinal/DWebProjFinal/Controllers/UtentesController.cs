@@ -67,8 +67,6 @@ namespace DWebProjFinal.Controllers
         }
 
         // POST: Utentes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Nome,Email,Telemovel,Password,dataNasc,Biografia")] Utentes utente, IFormFile PfpIcon)
@@ -77,8 +75,6 @@ namespace DWebProjFinal.Controllers
             {
                 string nomeImagem = "";
                 bool haImagem = false;
-
-
 
                 if (PfpIcon == null)   //se não houver ficheiro
                 {
@@ -107,6 +103,14 @@ namespace DWebProjFinal.Controllers
                 _context.Add(utente);   //adiciona os dados recebidos ao objeto
                 await _context.SaveChangesAsync();   //faz o commit
 
+                // Create corresponding LoginUtilizador
+                var loginUtilizador = new LoginUtilizador
+                {
+                    Email = utente.Email,
+                    Password = utente.Password
+                };
+                _context.Add(loginUtilizador);
+                await _context.SaveChangesAsync();
 
                 //a imagem ao chegar aqui está pronta a ser uploaded
                 if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
@@ -131,11 +135,9 @@ namespace DWebProjFinal.Controllers
                     //guardar a imagem no disco rígido
                     using var stream = new FileStream(nomeFicheiro, FileMode.Create);
                     await PfpIcon.CopyToAsync(stream);
-
                 }
 
                 return RedirectToAction(nameof(Index));   //redireciona para o início
-
             }
             return View(utente);   //se o modelo de dados não for válido, algo correu mal e volta para o início
         }
@@ -156,9 +158,7 @@ namespace DWebProjFinal.Controllers
             return View(utentes);
         }
 
-        // POST: Utentes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // PUT: Utentes/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Icon,Email,Telemovel,Password,dataNasc,Biografia")] Utentes utentes)
@@ -174,6 +174,17 @@ namespace DWebProjFinal.Controllers
                 {
                     _context.Update(utentes);
                     await _context.SaveChangesAsync();
+
+                    // Update corresponding LoginUtilizador
+                    var loginUtilizador = await _context.LoginUtilizador.FirstOrDefaultAsync(lu => lu.Email == utentes.Email);
+                    if (loginUtilizador != null)
+                    {
+                        loginUtilizador.Password = utentes.Password;
+                        _context.Update(loginUtilizador);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -218,9 +229,17 @@ namespace DWebProjFinal.Controllers
             if (utentes != null)
             {
                 _context.Utentes.Remove(utentes);
+
+                // Delete corresponding LoginUtilizador
+                var loginUtilizador = await _context.LoginUtilizador.FirstOrDefaultAsync(lu => lu.Email == utentes.Email);
+                if (loginUtilizador != null)
+                {
+                    _context.LoginUtilizador.Remove(loginUtilizador);
+                }
+
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

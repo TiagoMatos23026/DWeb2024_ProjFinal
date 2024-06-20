@@ -9,6 +9,14 @@
 <p>
     <a asp-action="Create">Criar novo Utilizador</a>
 </p>
+
+<style>
+    .fixed-height-img {
+        height: 100px;
+        width: auto;
+    }
+</style>
+
 <table class="table">
     <thead>
         <tr>
@@ -17,15 +25,6 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Icon)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Telemovel)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.dataNasc)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Biografia)
@@ -45,19 +44,8 @@
                     <img src="~/imagens/@Html.DisplayFor(modelItem => item.Icon)"
                          alt="Icon do Utilizador @Html.DisplayFor(modelItem => item.Nome)"
                          title="@Html.DisplayFor(modelItem => item.Icon)"
+                         class="fixed-height-img"
                          />
-                </td>
-
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
-
-                <td>
-                    @Html.DisplayFor(modelItem => item.Telemovel)
-                </td>
-
-                <td>
-                    @Html.DisplayFor(modelItem => item.dataNasc)
                 </td>
 
                 <td>
