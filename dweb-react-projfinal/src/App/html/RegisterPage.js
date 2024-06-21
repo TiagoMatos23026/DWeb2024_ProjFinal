@@ -59,6 +59,8 @@ const RegisterPage = () => {
           if (response.ok) {
             const responseData = await response.json();
             console.log('Response:', responseData);
+            alert('Conta Criada com Sucesso!')
+            window.location.href="/HomePage"
           } else {
             console.error('Error submitting form:', response.statusText);
           }
@@ -66,28 +68,6 @@ const RegisterPage = () => {
           console.error('Error submitting form:', error);
         }
 
-        console.log('Response:', responseData);
-      } else {
-        console.error('Error submitting form:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-    }
-
-    // Login request
-
-
-    try {
-      const response = await fetch('http://localhost:5101/api/LoginUtilizadorAPI', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(loginData)
-      });
-
-      if (response.ok) {
-        const responseData = await response.json();
         console.log('Response:', responseData);
       } else {
         console.error('Error submitting form:', response.statusText);

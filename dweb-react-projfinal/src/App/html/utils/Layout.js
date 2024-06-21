@@ -13,12 +13,17 @@ function Layout() {
     const [pagesList, setPagesList] = useState([]);
     const [utentesList, setUtentesList] = useState([]);
     const [showSearchResults, setShowSearchResults] = useState(false); // State to control when to show search results
+    const [sessionUser, setSessionUser] = useState(sessionStorage.getItem('userLogged')); // Manage sessionUser with useState
     const navigate = useNavigate();
     const location = useLocation();
 
     useEffect(() => {
         fetchData();
     }, []);
+
+    useEffect(() => {
+        setSessionUser(sessionStorage.getItem('userLogged')); // Update sessionUser when session storage changes
+    }, [sessionStorage.getItem('userLogged')]);
 
     const fetchData = async () => {
         try {
@@ -51,6 +56,12 @@ function Layout() {
         }
     };
 
+    const handleLogout = () => {
+        sessionStorage.setItem('userLogged', 'null');
+        setSessionUser('null');
+        navigate("/HomePage"); // Navigate to homepage after logging out
+    };
+
     const { user, setUser } = useAuth();
 
     return (
@@ -63,7 +74,7 @@ function Layout() {
                         <input
                             className="form-control me-2"
                             type="search"
-                            placeholder="Search..."
+                            placeholder="Pesquisa..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -71,25 +82,25 @@ function Layout() {
                     </form>
 
                     <ul className="navbar-nav d-flex align-items-center me-3">
-                        {user != null ? (
+                        {sessionUser !== 'null' && sessionUser !== null ? (
                             <>
                                 <li className="nav-item">
-                                    <Link className="btn btn-primary ms-2" to="/VerPerfil">Meu Perfil</Link>
+                                    <Link className="btn btn-primary ms-2" to="/ProfilePage">Meu Perfil</Link>
                                 </li>
                                 <li className="nav-item">
-                                    <Link className="btn btn-danger ms-2" to="/CriarPagina">Criar Página</Link>
+                                    <Link className="btn btn-danger ms-2" to="/CreatePage">Criar Página</Link>
                                 </li>
                                 <li className="nav-item">
-                                    <button className="btn btn-warning ms-2">Log Out</button>
+                                    <button className="btn btn-warning ms-2" onClick={handleLogout}>Log Out</button>
                                 </li>
                             </>
                         ) : (
                             <>
                                 <li className="nav-item">
-                                    <Link className="btn btn-info ms-2" to="RegisterPage">Registar</Link>
+                                    <Link className="btn btn-info ms-2" to="/RegisterPage">Registar</Link>
                                 </li>
                                 <li className="nav-item">
-                                    <Link className="btn btn-warning ms-2" to="LoginPage">Log In</Link>
+                                    <Link className="btn btn-warning ms-2" to="/LoginPage">Log In</Link>
                                 </li>
                             </>
                         )}

@@ -5,6 +5,7 @@ import HomePage from './App/html/HomePage';
 import ViewPage from './App/html/ViewPage';
 import SearchPage from './App/html/SearchPage';
 import LoginPage from './App/html/LoginPage';
+import CreatePage from './App/html/CreatePage';
 
 import { createContext, useEffect, useState, useContext } from 'react'
 import {
@@ -13,6 +14,7 @@ import {
     Route,
   } from 'react-router-dom';
 import RegisterPage from './App/html/RegisterPage';
+import ProfilePage from './App/html/ProfilePage';
 
 export const AuthContext = createContext({ });
 
@@ -32,6 +34,8 @@ function App() {
                         <Route className="container" path="SearchPage" element={<SearchPage />} />
                         <Route className="container" path="LoginPage" element={<LoginPage />} />
                         <Route className="container" path="RegisterPage" element={<RegisterPage />} />
+                        <Route className="container" path="ProfilePage" element={<ProfilePage />} />
+                        <Route className="container" path="CreatePage" element={<CreatePage />} />
                     </Route>
                 </Routes>
             </Router>

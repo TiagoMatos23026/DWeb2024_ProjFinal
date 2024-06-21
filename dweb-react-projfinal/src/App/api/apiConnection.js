@@ -11,9 +11,26 @@ export function getUtentesAPI(){
     return fetch("http://localhost:5101/api/UtentesAPI")
 }
 
-export function getPagesAPI(){
+export const getPagesAPI = async () => {
     return fetch("http://localhost:5101/api/PaginasAPI")
-}
+};
+
+export const getPagesDetailsAPI = async () => {
+    const response = await fetch("http://localhost:5101/api/PaginasAPI");
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+};
+
+export const getUtentesDetailsAPI = async (email) => {
+    const response = await fetch(`http://localhost:5101/api/UtentesAPI?email=${encodeURIComponent(email)}`);
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+};
+
 
 {/*export function getPaginasAPIPaged(idPagina) {
     return fetch("https://spring-server.azurewebsites.net/todo/getTarefasPaged?idPagina="+idPagina

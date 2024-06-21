@@ -35,7 +35,7 @@ namespace DWebProjFinal.Models
         [ForeignKey(nameof(Utente))]
         [Display(Name = "Chave Forasteira do Utente")]
         public int UtenteFK { get; set; }
-        public Utentes Utente { get; set; }
+        public Utentes? Utente { get; set; }
 
         public ICollection<Categorias> ListaCategorias { get; set; }
     }

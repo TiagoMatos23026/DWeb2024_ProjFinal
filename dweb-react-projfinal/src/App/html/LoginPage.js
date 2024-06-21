@@ -2,27 +2,30 @@ import React, { useState } from 'react';
 import { useAuth } from '../../App';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const LoginUtilizadorAPI = async () => {
-  const response = await fetch('http://localhost:5101/api/LoginUtilizadorAPI');
-  const data = await response.json();
-  return data;
-};
-
 const LoginPage = () => {
+
+  const LoginUtilizadorAPI = async () => {
+    const response = await fetch('http://localhost:5101/api/LoginUtilizadorAPI');
+    const data = await response.json();
+    return data;
+  };
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { setUser } = useAuth();  // Destructure setUser from useAuth
+  //const { user, setUser } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const users = await LoginUtilizadorAPI();
-    const user = users.find(user => user.email === email);
+    const userAPI = users.find(userAPI => userAPI.email === email);
+    const userEmail = userAPI.email;
 
-    if (user && user.password === password) {
-      setUser(user);  // Save the logged-in user in the context
+    if (userAPI && userAPI.password === password) {
+      //setUser(userAPI);  
+      sessionStorage.setItem('userLogged', userEmail )
       alert('Login successful!');
-      // Redirect or do something after successful login
+      window.location.href="/HomePage";
     } else {
       setError('Invalid email or password');
     }
