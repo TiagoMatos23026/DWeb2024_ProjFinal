@@ -69,23 +69,23 @@ namespace DWebProjFinal.Controllers
         // POST: Utentes/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nome,Email,Telemovel,Password,dataNasc,Biografia")] Utentes utente, IFormFile PfpIcon)
+        public async Task<IActionResult> Create([Bind("Id,Nome,Telemovel,dataNasc,Biografia")] Utentes utente, IFormFile IconFile)
         {
             if (ModelState.IsValid)
             {
                 string nomeImagem = "";
                 bool haImagem = false;
 
-                if (PfpIcon == null)   //se não houver ficheiro
+                if (IconFile == null)   //se não houver ficheiro
                 {
                     ModelState.AddModelError("", "Nenhuma imagem foi fornecida");   //mensagem de erro
                     return View(utente);   //volta para o início com os dados já preenchidos
                 }
                 else   //se há ficheiro
                 {
-                    if (!(PfpIcon.ContentType == "image/png" ||
-                        PfpIcon.ContentType == "image/jpeg" ||
-                        PfpIcon.ContentType == "image/jpg"))   //se o ficheiro não for do tipo imagem
+                    if (!(IconFile.ContentType == "image/png" ||
+                        IconFile.ContentType == "image/jpeg" ||
+                        IconFile.ContentType == "image/jpg"))   //se o ficheiro não for do tipo imagem
                     {
                         utente.Icon = "defaultIcon.png";   //usa-se uma imagem pre definida
                     }
@@ -94,7 +94,7 @@ namespace DWebProjFinal.Controllers
                         haImagem = true;
                         Guid g = Guid.NewGuid();
                         nomeImagem = g.ToString();
-                        string extensaoImagem = Path.GetExtension(PfpIcon.FileName).ToLowerInvariant();
+                        string extensaoImagem = Path.GetExtension(IconFile.FileName).ToLowerInvariant();
                         nomeImagem += extensaoImagem;
                         utente.Icon = nomeImagem;   //guarda o nome da imagem na BD
                     }
@@ -102,15 +102,6 @@ namespace DWebProjFinal.Controllers
 
                 _context.Add(utente);   //adiciona os dados recebidos ao objeto
                 await _context.SaveChangesAsync();   //faz o commit
-
-                // Create corresponding LoginUtilizador
-                var loginUtilizador = new LoginUtilizador
-                {
-                    Email = utente.Email,
-                    Password = utente.Password
-                };
-                _context.Add(loginUtilizador);
-                await _context.SaveChangesAsync();
 
                 //a imagem ao chegar aqui está pronta a ser uploaded
                 if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
@@ -134,7 +125,7 @@ namespace DWebProjFinal.Controllers
 
                     //guardar a imagem no disco rígido
                     using var stream = new FileStream(nomeFicheiro, FileMode.Create);
-                    await PfpIcon.CopyToAsync(stream);
+                    await IconFile.CopyToAsync(stream);
                 }
 
                 return RedirectToAction(nameof(Index));   //redireciona para o início
@@ -175,16 +166,6 @@ namespace DWebProjFinal.Controllers
                     _context.Update(utentes);
                     await _context.SaveChangesAsync();
 
-                    // Update corresponding LoginUtilizador
-                    var loginUtilizador = await _context.LoginUtilizador.FirstOrDefaultAsync(lu => lu.Email == utentes.Email);
-                    if (loginUtilizador != null)
-                    {
-                        loginUtilizador.Password = utentes.Password;
-                        _context.Update(loginUtilizador);
-                        await _context.SaveChangesAsync();
-                    }
-
-                    
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -229,13 +210,6 @@ namespace DWebProjFinal.Controllers
             if (utentes != null)
             {
                 _context.Utentes.Remove(utentes);
-
-                // Delete corresponding LoginUtilizador
-                var loginUtilizador = await _context.LoginUtilizador.FirstOrDefaultAsync(lu => lu.Email == utentes.Email);
-                if (loginUtilizador != null)
-                {
-                    _context.LoginUtilizador.Remove(loginUtilizador);
-                }
 
                 await _context.SaveChangesAsync();
             }

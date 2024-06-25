@@ -4,7 +4,8 @@
     ViewData["Title"] = "Registar";
 }
 
-<h1>Registar novo staff</h1>
+<h1>Registar nova conta</h1>
+<p>Os campos marcados com * são de preenchimento obrigatório</p>
 <hr />
 
 
@@ -15,21 +16,55 @@
         <div class="col-md-4">
             <div class="form-floating mb-3">
                 <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="Input.Email">Email</label>
+                <label asp-for="Input.Email">Email*</label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
+
             <div class="form-floating mb-3">
                 <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.Password">Password</label>
+                <label asp-for="Input.Password">Password*</label>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
+
             <div class="form-floating mb-3">
                 <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+                <label asp-for="Input.ConfirmPassword">Confirmar Password*</label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
+
+            <div class="form-floating mb-3">
+                <textarea asp-for="Input.utente.Biografia" class="form-control" aria-required="true"></textarea>
+                <label asp-for="Input.utente.Biografia"></label>
+            </div>
+            
+        </div>
+
+
+        <div class="col-md-6 col-md-offset-2">
+            <div class="form-floating mb-3">
+                <input asp-for="Input.utente.Nome" class="form-control" aria-required="true" placeholder="Jon Doe" />
+                <label asp-for="Input.utente.Nome">Nome de Utilizador*</label>
+                <span asp-validation-for="Input.utente.Nome" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.utente.dataNasc" type="date" class="form-control" aria-required="true" placeholder="23-06-1996" />
+                <label asp-for="Input.utente.dataNasc">Data de Nascimento*</label>
+                <span asp-validation-for="Input.utente.dataNasc" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.utente.Telemovel" class="form-control" aria-required="true" placeholder="910000000" />
+                <label asp-for="Input.utente.Telemovel">Número de Telemóvel*</label>
+                <span asp-validation-for="Input.utente.Telemovel" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.utente.Icon" type="file" class="form-control" aria-required="true"/>
+                <label asp-for="Input.utente.Icon"></label>
+            </div>
+        </div>
+        <div class="col-md-4">
+
             <br />
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Registar</button>
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-success">Registar</button>
         </div>
     </div>
 </form>

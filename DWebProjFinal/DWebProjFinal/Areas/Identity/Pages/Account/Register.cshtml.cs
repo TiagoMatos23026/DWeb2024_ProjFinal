@@ -10,7 +10,9 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using DWebProjFinal.Controllers;
 
+using DWebProjFinal.Data;
 using DWebProjFinal.Models;
 
 using Microsoft.AspNetCore.Authentication;
@@ -20,6 +22,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace DWebProjFinal.Areas.Identity.Pages.Account
@@ -33,12 +36,15 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
 
+        private readonly ApplicationDbContext _context;
+
         public RegisterModel(
-            UserManager<IdentityUser> userManager,
-            IUserStore<IdentityUser> userStore,
-            SignInManager<IdentityUser> signInManager,
-            ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+          UserManager<IdentityUser> userManager,
+          IUserStore<IdentityUser> userStore,
+          SignInManager<IdentityUser> signInManager,
+          ILogger<RegisterModel> logger,
+          IEmailSender emailSender,
+          ApplicationDbContext context)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -46,11 +52,12 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _context = context;
         }
 
         /// <summary>
-        ///     objeto a ser utilizado para transportar os dados
-        ///     entre a interface e o código
+        /// objeto a ser utilizado para transportar os dados
+        /// entre a interface e o código
         /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
@@ -103,7 +110,7 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
             public string ConfirmPassword { get; set; }
 
             /// <summary>
-            /// Recolhe os dados do Utilizador PROFESSOR
+            /// Recolhe os dados do Utente
             /// </summary>
             public Utentes utente { get; set; }
         }
@@ -132,16 +139,14 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
             // somos redirecionado para a raiz da app
             returnUrl ??= Url.Content("~/");
 
-
-            // retirado a referência a 'autenticadores' externos
             //   ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
 
             // os dados recebidos são válidos?
             if (ModelState.IsValid)
             {
 
                 var user = CreateUser();
+
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -153,7 +158,26 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     //houve sucesso
-                    _logger.LogInformation("User created a new account with password.");
+                    _logger.LogInformation("Utilizador criado com sucesso!");
+
+                    try
+                    {
+                        // ***********************************
+                        // guardar os dados do Utente
+                        // ***********************************
+
+                        Input.utente.UserID = user.Id;
+                        // adicionar os dados do Utente à BD
+                        _context.Add(Input.utente);
+                        await _context.SaveChangesAsync();
+                        // ***********************************
+                    }
+                    catch (Exception ex)
+                    {
+                        _context.Remove(Input.utente);
+                        await _context.SaveChangesAsync();
+                        throw;
+                    }
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
