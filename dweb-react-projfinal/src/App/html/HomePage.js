@@ -9,17 +9,27 @@ function FrontPage() {
     const [utentesList, setUtentesList] = useState([]);
     const navigate = useNavigate();
 
+    const shufflePages = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
     const fetchData = async () => {
         try {
             const [pagesResponse, utentesResponse] = await Promise.all([getPagesAPI(), getUtentesAPI()]);
             const pagesData = await pagesResponse.json();
             const utentesData = await utentesResponse.json();
-            setPagesList(pagesData);
+            setPagesList(shufflePages(pagesData));
             setUtentesList(utentesData);
         } catch (error) {
             console.error('Erro', error);
         }
     };
+
+    
 
     useEffect(() => {
         fetchData();
@@ -31,7 +41,7 @@ function FrontPage() {
     };
 
     const renderPages = () => {
-        const baseUrl = "http://localhost:5101/imagens/"; // Adjust this base URL as needed
+        const baseUrl = "http://localhost:5101/imagens/";
         return pagesList.map((page, index) => {
             const autor = utentesList.find(utente => utente.id === page.utenteFK)?.nome || 'Desconhecido';
             const imagePath = `${baseUrl}${page.thumbnail}`;

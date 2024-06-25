@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.css';
-import { getPagesAPI, getUtentesAPI } from "../../api/apiConnection"; // Assuming these functions fetch pages and utentes from an API
+import { getPagesAPI, getUtentesAPI } from "../../api/apiConnection";
 import SearchPage from "../SearchPage";
 import LoginPage from "../LoginPage";
 import { useAuth } from "../../../App";
@@ -12,8 +12,8 @@ function Layout() {
     const [searchResults, setSearchResults] = useState([]);
     const [pagesList, setPagesList] = useState([]);
     const [utentesList, setUtentesList] = useState([]);
-    const [showSearchResults, setShowSearchResults] = useState(false); // State to control when to show search results
-    const [sessionUser, setSessionUser] = useState(sessionStorage.getItem('userLogged')); // Manage sessionUser with useState
+    const [showSearchResults, setShowSearchResults] = useState(false);
+    const [sessionUser, setSessionUser] = useState(sessionStorage.getItem('userLogged'));
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -22,7 +22,7 @@ function Layout() {
     }, []);
 
     useEffect(() => {
-        setSessionUser(sessionStorage.getItem('userLogged')); // Update sessionUser when session storage changes
+        setSessionUser(sessionStorage.getItem('userLogged')); 
     }, [sessionStorage.getItem('userLogged')]);
 
     const fetchData = async () => {
@@ -41,11 +41,11 @@ function Layout() {
         e.preventDefault();
         const filteredResults = pagesList.filter(page => page.name.toLowerCase().includes(searchQuery.toLowerCase()));
         setSearchResults(filteredResults);
-        setShowSearchResults(true); // Show search results after filtering
+        setShowSearchResults(true); 
     };
 
     const handleSearchLinkClick = () => {
-        setShowSearchResults(false); // Hide search results when clicking on the search link
+        setShowSearchResults(false); 
     };
 
     const handleHomePageClick = () => {
@@ -59,7 +59,7 @@ function Layout() {
     const handleLogout = () => {
         sessionStorage.setItem('userLogged', 'null');
         setSessionUser('null');
-        navigate("/HomePage"); // Navigate to homepage after logging out
+        navigate("/HomePage");
     };
 
     const { user, setUser } = useAuth();
@@ -108,8 +108,8 @@ function Layout() {
                 </div>
             </nav>
 
-            {showSearchResults && <SearchPage searchResults={searchResults} />} {/* Render SearchPage only if showSearchResults is true */}
-            {!showSearchResults && <Outlet />} {/* Render Outlet (default content) if showSearchResults is false */}
+            {showSearchResults && <SearchPage searchResults={searchResults} />}
+            {!showSearchResults && <Outlet />}
         </>
     );
 }

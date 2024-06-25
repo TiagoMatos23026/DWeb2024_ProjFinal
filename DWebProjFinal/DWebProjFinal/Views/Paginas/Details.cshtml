@@ -4,7 +4,7 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Detailhes</h1>
+<h1>Detalhes</h1>
 
 <div>
     <h4>Páginas</h4>
@@ -37,14 +37,16 @@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Thumbnail)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Thumbnail)
+        <dd class="col-sm-10">
+            <img src="~/imagens/@Html.DisplayFor(model => model.Thumbnail)"
+                 alt="Icon do Utilizador @Html.DisplayFor(model => model.Thumbnail)"
+                 title="@Html.DisplayFor(model => model.Thumbnail)" />
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Utente)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Utente.Email)
+            @Html.DisplayFor(model => model.Utente.Nome)
         </dd>
     </dl>
 </div>

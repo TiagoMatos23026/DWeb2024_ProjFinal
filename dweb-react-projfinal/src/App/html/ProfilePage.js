@@ -7,7 +7,6 @@ const ProfilePage = () => {
     const [pagesList, setPagesList] = useState([]);
     const navigate = useNavigate();
 
-    // Fetch the logged-in user's email from sessionStorage
     const email = sessionStorage.getItem('userLogged');
 
     const fetchData = async () => {
@@ -34,11 +33,10 @@ const ProfilePage = () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                // Optionally, you can include credentials such as session cookies
+                
                 credentials: 'include',
             });
             if (response.ok) {
-                // If successful, remove the deleted page from the state
                 setPagesList(pagesList.filter(page => page.id !== id));
             } else {
                 console.error('Failed to delete page');
