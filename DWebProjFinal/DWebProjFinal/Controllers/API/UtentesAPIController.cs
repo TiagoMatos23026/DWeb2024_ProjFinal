@@ -147,8 +147,6 @@ namespace DWebProjFinal.Controllers.API
 
             }
 
-
-
             return CreatedAtAction("GetUtentes", new { id = utente.Id }, utente);
         }
 

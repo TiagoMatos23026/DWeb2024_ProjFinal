@@ -1,9 +1,29 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    var dados = ViewBag.Context as ApplicationDbContext;
+    var utentes = dados.Utentes.ToArray();
+    var basePath = "wwwroot/imagens/";
 }
+
 
 <div class="text-center">
     <h1 class="display-4">Bem-Vindo HowToMaster</h1>
     <p>ESTT, Engenharia Informática, Desenvolvimento Web 2024</p>
+    <div></div>
 
 </div>
+
+<div class="container">
+    <div class="row">
+        @foreach (var utente in utentes)
+        {
+            <div class="col-12 col-md-4 mt-3">
+                <div className="border border-success rounded-3" style={{ height: '100%' }}>
+                    @utente.Nome
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+

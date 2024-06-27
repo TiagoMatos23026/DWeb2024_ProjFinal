@@ -10,6 +10,8 @@ using DWebProjFinal.Models;
 using System.Drawing;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.General;
+using Microsoft.AspNetCore.Identity;
 
 namespace DWebProjFinal.Controllers
 {
@@ -21,16 +23,25 @@ namespace DWebProjFinal.Controllers
         /// </summary>
         private readonly ApplicationDbContext _context;
 
+
+        /// <summary>
+        /// Referência ao Identity para controlo do userLogin
+        /// </summary>
+        private readonly UserManager<IdentityUser> _userManager;
+
         /// <summary>
         /// Objeto que contém os dados do servidor
         /// </summary>
         private readonly IWebHostEnvironment _webHostEnvironment;
 
+
         public UtentesController(
+            UserManager<IdentityUser> userManager,
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;
         }
 
@@ -67,6 +78,12 @@ namespace DWebProjFinal.Controllers
         }
 
         // POST: Utentes/Create
+        /// <summary>
+        /// Método para criar um novo Utente
+        /// </summary>
+        /// <param name="utente"></param>
+        /// <param name="IconFile"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Nome,Telemovel,dataNasc,Biografia")] Utentes utente, IFormFile IconFile)
@@ -78,8 +95,7 @@ namespace DWebProjFinal.Controllers
 
                 if (IconFile == null)   //se não houver ficheiro
                 {
-                    ModelState.AddModelError("", "Nenhuma imagem foi fornecida");   //mensagem de erro
-                    return View(utente);   //volta para o início com os dados já preenchidos
+                    utente.Icon = "defaultIcon.png";
                 }
                 else   //se há ficheiro
                 {
@@ -140,36 +156,48 @@ namespace DWebProjFinal.Controllers
             {
                 return NotFound();
             }
-
-            var utentes = await _context.Utentes.FindAsync(id);
-            if (utentes == null)
+            var utente = await _context.Utentes.FindAsync(id);
+            var userLogin = await _userManager.FindByIdAsync(utente.UserID);
+            
+            if (utente == null)
             {
                 return NotFound();
             }
-            return View(utentes);
+            return View(utente);
         }
 
         // PUT: Utentes/Edit/5
+        /// <summary>
+        /// Método para Editar Utente
+        /// Recebe um id, o utente cujo id foi dado e o UserLogin cujo id coincide com UserId em utente
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="utente"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Icon,Email,Telemovel,Password,dataNasc,Biografia")] Utentes utentes)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Icon,Telemovel,Password,dataNasc,Biografia")] Utentes utente, string currentPassword, string newPassword)
         {
-            if (id != utentes.Id)
+            if (id != utente.Id)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
+                var userLogin = await _userManager.FindByIdAsync(utente.UserID);
+                
+
                 try
                 {
-                    _context.Update(utentes);
+                    await _userManager.ChangePasswordAsync(userLogin, currentPassword, newPassword);
+                    _context.Update(utente);
                     await _context.SaveChangesAsync();
 
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!UtentesExists(utentes.Id))
+                    if (!UtentesExists(utente.Id))
                     {
                         return NotFound();
                     }
@@ -180,7 +208,7 @@ namespace DWebProjFinal.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(utentes);
+            return View(utente);
         }
 
         // GET: Utentes/Delete/5
@@ -202,15 +230,22 @@ namespace DWebProjFinal.Controllers
         }
 
         // POST: Utentes/Delete/5
+        /// <summary>
+        /// Apaga o Utente e o respetivo UserLogin
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var utentes = await _context.Utentes.FindAsync(id);
-            if (utentes != null)
-            {
-                _context.Utentes.Remove(utentes);
+            var utente = await _context.Utentes.FindAsync(id);
+            var userLogin = await _userManager.FindByIdAsync(utente.UserID);
 
+            if (utente != null)
+            {
+                _context.Utentes.Remove(utente);
+                _userManager.DeleteAsync(userLogin);
                 await _context.SaveChangesAsync();
             }
 

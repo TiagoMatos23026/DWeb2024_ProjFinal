@@ -1,3 +1,4 @@
+using DWebProjFinal.Controllers;
 using DWebProjFinal.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddTransient<UtentesController>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

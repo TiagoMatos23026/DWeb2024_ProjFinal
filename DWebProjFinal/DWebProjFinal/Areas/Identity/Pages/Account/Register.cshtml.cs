@@ -35,10 +35,11 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
-
+        private readonly UtentesController _utenteController;
         private readonly ApplicationDbContext _context;
 
         public RegisterModel(
+          UtentesController utenteController,
           UserManager<IdentityUser> userManager,
           IUserStore<IdentityUser> userStore,
           SignInManager<IdentityUser> signInManager,
@@ -46,6 +47,7 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
           IEmailSender emailSender,
           ApplicationDbContext context)
         {
+
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
@@ -53,6 +55,7 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
             _logger = logger;
             _emailSender = emailSender;
             _context = context;
+            _utenteController = utenteController;
         }
 
         /// <summary>
@@ -113,11 +116,12 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
             /// Recolhe os dados do Utente
             /// </summary>
             public Utentes utente { get; set; }
+            public IFormFile IconFile { get; set; }
         }
 
 
         /// <summary>
-        /// este método reage ao verbo HTTP GET
+        /// Este método reage ao verbo HTTP GET
         /// </summary>
         /// <param name="returnUrl">o endereço onde 'estávamos'
         ///  quando foi feito o pedido para nos registarmos
@@ -133,6 +137,11 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
             //  tornar o nosso método síncrono
         }
 
+        /// <summary>
+        /// Método para criar um novo Utente e um login para ele
+        /// </summary>
+        /// <param name="returnUrl"></param>
+        /// <returns></returns>
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             // se returnUrl = NULL,
@@ -145,42 +154,52 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
 
-                var user = CreateUser();
+                var userLogin = CreateUser();
 
 
-                await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-                await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                await _userStore.SetUserNameAsync(userLogin, Input.Email, CancellationToken.None);
+                await _emailStore.SetEmailAsync(userLogin, Input.Email, CancellationToken.None);
 
                 // estamos, aqui, a verdadeiramente guardar os dados
                 // da autenticação na base de dados
-                var result = await _userManager.CreateAsync(user, Input.Password);
+                var result = await _userManager.CreateAsync(userLogin, Input.Password);
 
                 if (result.Succeeded)
                 {
                     //houve sucesso
                     _logger.LogInformation("Utilizador criado com sucesso!");
 
-                    try
-                    {
-                        // ***********************************
-                        // guardar os dados do Utente
-                        // ***********************************
-
-                        Input.utente.UserID = user.Id;
+                    /*
+                    try //tenta guardar os dados do Utente na bd. Essencialmente é o que o Create no UtentesController faz
+                    {                      
+                        Input.utente.UserID = userLogin.Id;
                         // adicionar os dados do Utente à BD
                         _context.Add(Input.utente);
                         await _context.SaveChangesAsync();
-                        // ***********************************
-                    }
-                    catch (Exception ex)
+
+                    } 
+                    catch (Exception ex) //se não deu para criar o Utente...
                     {
-                        _context.Remove(Input.utente);
+                        //...remove o userLogin
+                        await _userManager.DeleteAsync(userLogin);
                         await _context.SaveChangesAsync();
                         throw;
+                    }*/
+
+                    try
+                    {
+                        await _utenteController.Create(Input.utente, Input.IconFile);
+                    }
+                    catch (Exception ex) //se não deu para criar o Utente...
+                    {
+                        //...remove o userLogin
+                        await _userManager.DeleteAsync(userLogin);
+                        await _context.SaveChangesAsync();
+                        Url.Content("~/");
                     }
 
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var userId = await _userManager.GetUserIdAsync(userLogin);
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(userLogin);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",
@@ -205,7 +224,7 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        await _signInManager.SignInAsync(userLogin, isPersistent: false);
                         return LocalRedirect(returnUrl);
                     }
                 }

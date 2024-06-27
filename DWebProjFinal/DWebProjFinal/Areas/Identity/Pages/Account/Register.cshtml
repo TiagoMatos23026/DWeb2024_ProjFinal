@@ -9,7 +9,7 @@
 <hr />
 
 
-<form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+<form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
     <div class="row">
@@ -57,14 +57,14 @@
                 <span asp-validation-for="Input.utente.Telemovel" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
-                <input asp-for="Input.utente.Icon" type="file" class="form-control" aria-required="true"/>
-                <label asp-for="Input.utente.Icon"></label>
+                <input asp-for="Input.IconFile" type="file" class="form-control" aria-required="true" />
+                <label asp-for="Input.IconFile"></label>
             </div>
         </div>
         <div class="col-md-4">
 
             <br />
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-success">Registar</button>
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-sucess">Registar</button>
         </div>
     </div>
 </form>

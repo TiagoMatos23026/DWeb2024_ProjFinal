@@ -40,7 +40,7 @@ namespace DWebProjFinal.Models
         /// atributo para funcionar como FK entre a tabela dos Utilizadores
         /// e a tabela da Autenticação
         /// </summary>
-        public string UserID { get; set; }
+        public string? UserID { get; set; }
 
 
 
