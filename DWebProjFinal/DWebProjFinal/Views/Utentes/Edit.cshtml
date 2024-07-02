@@ -53,7 +53,11 @@
 
             <h3>Dados de Login</h3>
             <hr />
-
+                <div class="form-group">
+                <label asp-for="UserID" class="control-label"></label>
+                <input asp-for="UserID" class="form-control" />
+                <span asp-validation-for="UserID" class="text-danger"></span>
+                </div>
             <br/>
 
             <div class="form-group">

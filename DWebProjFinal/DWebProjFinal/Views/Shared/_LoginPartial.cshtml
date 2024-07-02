@@ -1,32 +1,30 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
-@{
-    var userLogged = SignInManager.ToString;
-}
 
 <ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
-{
-    <li class="nav-item mx-2">
-            <form class="form-inline" asp-area="" asp-controller="UtentesController" asp-action="Details/@userLogged">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        var userId = UserManager.GetUserId(User);
+        <li class="nav-item mx-2">
+            <form class="form-inline" asp-controller="Utentes" asp-action="DetailsByUserLogin" asp-route-id="@userId">
                 <button type="submit" class="btn btn-outline-warning">Meu Perfil</button>
             </form>
-    </li>
+        </li>
 
-    <li class="nav-item">
-        <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+        <li class="nav-item">
+            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
                 <button type="submit" class="btn btn-outline-warning">Logout</button>
-        </form>
-    </li>
-}
-else
-{
-    <li class="nav-item mx-2">
-        <a class="btn btn-outline-warning" asp-area="Identity" asp-page="/Account/Register">Register</a>
-    </li>
-    <li class="nav-item mx-2">
-        <a class="btn btn-outline-warning" asp-area="Identity" asp-page="/Account/Login">Login</a>
-    </li>
-}
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item mx-2">
+            <a class="btn btn-outline-warning" asp-area="Identity" asp-page="/Account/Register">Registar</a>
+        </li>
+        <li class="nav-item mx-2">
+            <a class="btn btn-outline-warning" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        </li>
+    }
 </ul>

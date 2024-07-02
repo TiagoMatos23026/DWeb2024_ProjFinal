@@ -79,6 +79,23 @@ namespace DWebProjFinal.Controllers
             return View(utentes);
         }
 
+        public async Task<IActionResult> DetailsByUserLogin(string? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var utente = await _context.Utentes
+                .FirstOrDefaultAsync(m => m.UserID == id);
+            if (utente == null)
+            {
+                return NotFound();
+            }
+
+            return View(utente);
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -168,8 +185,9 @@ namespace DWebProjFinal.Controllers
             {
                 return NotFound();
             }
+
             var utente = await _context.Utentes.FindAsync(id);
-            var userLogin = await _userManager.FindByIdAsync(utente.UserID);
+            //var userLogin = await _userManager.FindByIdAsync(utente.UserID);
             
             if (utente == null)
             {
@@ -188,7 +206,7 @@ namespace DWebProjFinal.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Icon,Telemovel,Password,dataNasc,Biografia")] Utentes utente, string currentPassword, string newPassword)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Icon,Telemovel,dataNasc,Biografia,UserID")] Utentes utente)
         {
             if (id != utente.Id)
             {
@@ -199,10 +217,10 @@ namespace DWebProjFinal.Controllers
             {
                 var userLogin = await _userManager.FindByIdAsync(utente.UserID);
                 
-
+                
                 try
                 {
-                    await _userManager.ChangePasswordAsync(userLogin, currentPassword, newPassword);
+                    //await _userManager.ChangePasswordAsync(userLogin, currentPassword, newPassword);
                     _context.Update(utente);
                     await _context.SaveChangesAsync();
 

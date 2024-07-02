@@ -158,6 +158,7 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
 
                     try
                     {
+                        Input.utente.UserID = userLogin.Id;
                         await _utenteController.Create(Input.utente, Input.IconFile); //chamar UtentesContoller para criação de um objeto Utente
                     }
                     catch (Exception ex) 
@@ -168,6 +169,7 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
                     }
 
                     var userId = await _userManager.GetUserIdAsync(userLogin);
+
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(userLogin);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(

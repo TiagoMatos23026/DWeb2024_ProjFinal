@@ -8,7 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Views\Home\Profile.cs" />
     <Compile Remove="Views\Home\Profile.cshtml.cs" />
+    <Compile Remove="Views\Utentes\DetailsByUserLogin.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Views\Home\Profile.cshtml" />
+    <Content Remove="Views\Utentes\Index1.cshtml" />
   </ItemGroup>
 
   <ItemGroup>

@@ -21,10 +21,15 @@ namespace DWebProjFinal.Controllers
 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
+        private readonly UserManager<IdentityUser> _userManager;
+
         public PaginasController(
+
+            UserManager<IdentityUser> userManager,
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment)
         {
+            _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;
             _context = context;
         }
@@ -69,22 +74,22 @@ namespace DWebProjFinal.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Descricao,Conteudo,Dificuldade,UtenteFK")] Paginas pagina, IFormFile ImgThumbnail)
+        public async Task<IActionResult> Create([Bind("Id,Name,Descricao,Conteudo,Dificuldade")] Paginas pagina, IFormFile ImgThumbnail)
         {
-            if (pagina.UtenteFK == 0) //verifica se o Utente foi selecionado
+            var utenteFK = _userManager.GetUserId;
+
+            if (utenteFK == null) //verifica se o Utente foi selecionado
             {
                 ModelState.AddModelError("", "Por favor selecione um Utente.");
-                ViewData["UtenteFK"] = new SelectList(_context.Utentes, "Id", "Nome", pagina.UtenteFK);
                 return View(pagina);
             }
 
-            var utente = await _context.Utentes.FindAsync(pagina.UtenteFK);   //busca as informações do Utente
+            var utente = await _context.Utentes.FindAsync(utenteFK);   //busca as informações do Utente
 
 
             if (utente == null)   //verifica se o utente existe
             {
                 ModelState.AddModelError("", "Selected Utente does not exist.");
-                ViewData["UtenteFK"] = new SelectList(_context.Utentes, "Id", "Nome", pagina.UtenteFK);
                 return View(pagina);
             }
 
