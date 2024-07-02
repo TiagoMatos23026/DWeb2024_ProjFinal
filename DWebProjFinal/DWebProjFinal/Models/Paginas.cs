@@ -56,11 +56,11 @@ namespace DWebProjFinal.Models
         /// </summary>
         [ForeignKey(nameof(Utente))]
         [Display(Name = "Chave Forasteira do Utente")]
-        public int UtenteFK { get; set; }
+        public int? UtenteFK { get; set; }
         /// <summary>
         /// Utente que criou a página
         /// </summary>
-        public Utentes Utente { get; set; }
+        public Utentes? Utente { get; set; }
 
         /// <summary>
         /// Lista de categorias que a página contém

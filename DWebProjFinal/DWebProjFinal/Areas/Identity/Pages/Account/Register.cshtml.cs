@@ -129,12 +129,7 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
         /// <returns></returns>
         public void OnGet(string returnUrl = null)
         {
-            // guarda no atributo 'ReturnUrl' o parâmetro de
             ReturnUrl = returnUrl;
-
-            //  ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            //  pq se retirou esta instrução, foi necessário 
-            //  tornar o nosso método síncrono
         }
 
         /// <summary>
@@ -144,55 +139,29 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
         /// <returns></returns>
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            // se returnUrl = NULL,
-            // somos redirecionado para a raiz da app
+
             returnUrl ??= Url.Content("~/");
 
-            //   ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
-            // os dados recebidos são válidos?
-            if (ModelState.IsValid)
+            if (ModelState.IsValid) //validacao
             {
 
                 var userLogin = CreateUser();
 
-
                 await _userStore.SetUserNameAsync(userLogin, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(userLogin, Input.Email, CancellationToken.None);
 
-                // estamos, aqui, a verdadeiramente guardar os dados
-                // da autenticação na base de dados
                 var result = await _userManager.CreateAsync(userLogin, Input.Password);
 
                 if (result.Succeeded)
                 {
-                    //houve sucesso
                     _logger.LogInformation("Utilizador criado com sucesso!");
-
-                    /*
-                    try //tenta guardar os dados do Utente na bd. Essencialmente é o que o Create no UtentesController faz
-                    {                      
-                        Input.utente.UserID = userLogin.Id;
-                        // adicionar os dados do Utente à BD
-                        _context.Add(Input.utente);
-                        await _context.SaveChangesAsync();
-
-                    } 
-                    catch (Exception ex) //se não deu para criar o Utente...
-                    {
-                        //...remove o userLogin
-                        await _userManager.DeleteAsync(userLogin);
-                        await _context.SaveChangesAsync();
-                        throw;
-                    }*/
 
                     try
                     {
-                        await _utenteController.Create(Input.utente, Input.IconFile);
+                        await _utenteController.Create(Input.utente, Input.IconFile); //chamar UtentesContoller para criação de um objeto Utente
                     }
-                    catch (Exception ex) //se não deu para criar o Utente...
+                    catch (Exception ex) 
                     {
-                        //...remove o userLogin
                         await _userManager.DeleteAsync(userLogin);
                         await _context.SaveChangesAsync();
                         Url.Content("~/");
@@ -207,16 +176,8 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    // envia email para o utilizador com o código
-                    // de validação do email inserido
-                    // SÓ APÓS a aceitação desta tarefa o utilizador pode
-                    // entrar na app
-
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Por favor, confirme o seu email <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicando aqui</a>.");
-
-
-
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

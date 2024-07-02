@@ -45,14 +45,22 @@ namespace DWebProjFinal.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        // GET: Utentes
+        /// <summary>
+        /// Método GET para Utentes
+        /// </summary>
+        /// <returns></returns>
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Utentes.ToListAsync());
         }
 
-        // GET: Utentes/Details/5
+        /// <summary>
+        /// Método GET para um Utente específico
+        /// Retorna os dados do Utente cujo id foi introduzido
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
@@ -71,7 +79,10 @@ namespace DWebProjFinal.Controllers
             return View(utentes);
         }
 
-        // GET: Utentes/Create
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public IActionResult Create()
         {
             return View();
@@ -80,6 +91,7 @@ namespace DWebProjFinal.Controllers
         // POST: Utentes/Create
         /// <summary>
         /// Método para criar um novo Utente
+        /// Cria um objeto Utente
         /// </summary>
         /// <param name="utente"></param>
         /// <param name="IconFile"></param>
@@ -219,14 +231,17 @@ namespace DWebProjFinal.Controllers
                 return NotFound();
             }
 
-            var utentes = await _context.Utentes
+
+            var utente = await _context.Utentes
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (utentes == null)
+            var userLogin = await _userManager
+                .FindByIdAsync(utente.UserID);
+            if (utente == null || userLogin == null)
             {
                 return NotFound();
             }
 
-            return View(utentes);
+            return View(utente);
         }
 
         // POST: Utentes/Delete/5
@@ -244,8 +259,8 @@ namespace DWebProjFinal.Controllers
 
             if (utente != null)
             {
-                _context.Utentes.Remove(utente);
-                _userManager.DeleteAsync(userLogin);
+                await _userManager.DeleteAsync(userLogin);
+                _context.Utentes.Remove(utente);      
                 await _context.SaveChangesAsync();
             }
 

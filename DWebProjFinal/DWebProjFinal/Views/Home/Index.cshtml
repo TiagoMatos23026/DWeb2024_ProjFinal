@@ -2,28 +2,70 @@
     ViewData["Title"] = "Home Page";
     var dados = ViewBag.Context as ApplicationDbContext;
     var utentes = dados.Utentes.ToArray();
-    var basePath = "wwwroot/imagens/";
+    var paginas = dados.Paginas.ToArray();
 }
 
+<style>
+    .fixed-height-img {
+        height: 200px;
+        width: auto;
+    }
 
-<div class="text-center">
-    <h1 class="display-4">Bem-Vindo HowToMaster</h1>
-    <p>ESTT, Engenharia Informática, Desenvolvimento Web 2024</p>
-    <div></div>
+    .fixed-height-img-icon {
+        height: 40px;
+        width: auto;
+    }
 
-</div>
+    .card {
+        background-color: white;
+        transition: 0.3s;
+    }
 
-<div class="container">
-    <div class="row">
-        @foreach (var utente in utentes)
-        {
-            <div class="col-12 col-md-4 mt-3">
-                <div className="border border-success rounded-3" style={{ height: '100%' }}>
-                    @utente.Nome
-                </div>
-            </div>
+        .card:hover {
+            background-color: #f2d640;
+            color: white;
         }
+
+    }
+</style>
+<div class="container-fluid">
+    <div class="text-center">
+        <h1 class="display-4">Bem-Vindo HowToMaster</h1>
+        <p>ESTT, Engenharia Informática, Desenvolvimento Web 2024</p>
+        <div></div>
+
+    </div>
+
+    <div class="container">
+        <div class="row">
+            @foreach (var pagina in paginas)
+            {
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 mt-3">
+                    <div className="card p-3">
+                        <div class="card">
+                            <img class="card-img-top fixed-height-img"
+                                 src="~/imagens/@pagina.Thumbnail"
+                                 alt="Thumbnail da página @pagina.Thumbnail"
+                                 title="@pagina.Thumbnail" />
+
+                            <div class="card-body">
+                                <h3 className="card-title">
+                                    <img class="rounded-circle fixed-height-img-icon"
+                                         src="~/imagens/@pagina.Utente.Icon"
+                                         alt="Icon do autor @pagina.Utente.Icon"
+                                         title="@pagina.Utente.Icon" />
+
+                                    @Html.DisplayFor(modelItem => pagina.Name)
+                                </h3>
+                                <h6 className="card-subtitle mb-2 text-muted">
+                                    @Html.DisplayFor(modelItem => pagina.Utente.Nome)
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
 </div>
-
 
