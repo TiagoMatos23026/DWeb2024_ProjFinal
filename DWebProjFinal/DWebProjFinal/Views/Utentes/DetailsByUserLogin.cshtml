@@ -1,5 +1,4 @@
 ﻿@model DWebProjFinal.Models.Utentes
-
 @{
     ViewData["Title"] = "DetailsByUserLogin";
 }
@@ -7,7 +6,7 @@
 <h1>Meu Perfil</h1>
 
 <div>
-    <h4>Utente</h4>
+    <h4>Dados Públicos</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
@@ -49,9 +48,16 @@
         </dd>
     </dl>
 
-    <h4>Dados de Login</h4>
+    <h4>Páginas Escritas</h4>
     <hr />
     <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ListaPaginas)
+        </dt>
+        @foreach (var paginas in Model.ListaPaginas)
+        {
+            <dd class="col-sm-10"> @paginas.Name </dd>
+        }
     </dl>
 </div>
 <div>

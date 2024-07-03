@@ -34,6 +34,7 @@ namespace DWebProjFinal.Models
 
         public string? Biografia { get; set; }
 
+        [Display(Name = "Lista de Páginas")]
         public ICollection<Paginas> ListaPaginas { get; set; }
 
         /// <summary>

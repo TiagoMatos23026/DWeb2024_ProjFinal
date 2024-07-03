@@ -76,26 +76,17 @@ namespace DWebProjFinal.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Descricao,Conteudo,Dificuldade")] Paginas pagina, IFormFile ImgThumbnail)
         {
-            var utenteFK = _userManager.GetUserId;
-
-            if (utenteFK == null) //verifica se o Utente foi selecionado
-            {
-                ModelState.AddModelError("", "Por favor selecione um Utente.");
-                return View(pagina);
-            }
-
-            var utente = await _context.Utentes.FindAsync(utenteFK);   //busca as informações do Utente
-
-
-            if (utente == null)   //verifica se o utente existe
-            {
-                ModelState.AddModelError("", "Selected Utente does not exist.");
-                return View(pagina);
-            }
+            var userID = _userManager.GetUserId(User);
+            var utente = _context.Utentes.Include(x => x.ListaPaginas).FirstOrDefault(u => u.UserID == userID);
 
             //guarda o objeto dentro do modelo a ser uploaded
             pagina.Utente = utente;
+            pagina.UtenteFK = utente.Id;
 
+
+            //-----------------------------//
+            //Algoritmo para upload de imagem
+            //-----------------------------//
             string nomeImagem = "";
             bool haImagem = false;
 
@@ -138,8 +129,6 @@ namespace DWebProjFinal.Controllers
             //a imagem ao chegar aqui está pronta a ser uploaded
             if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
             {
-                //encolher a imagem a um tamanho apropriado
-                //procurar package no nuget que trate disso
 
                 //determinar o local de armazenamento da imagem dentro do disco rígido
                 string localizacaoImagem = _webHostEnvironment.WebRootPath;
@@ -160,10 +149,12 @@ namespace DWebProjFinal.Controllers
                 await ImgThumbnail.CopyToAsync(stream);
 
             }
+            //--------------//
+            //Fim do algoritmo
+            //--------------//
+            utente.ListaPaginas.Add(pagina);
 
-
-
-
+            _context.Update(utente);
 
             _context.Add(pagina);
             await _context.SaveChangesAsync();

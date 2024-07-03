@@ -1,4 +1,7 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@{
     ViewData["Title"] = "Home Page";
     var dados = ViewBag.Context as ApplicationDbContext;
     var utentes = dados.Utentes.ToArray();
@@ -22,7 +25,7 @@
     }
 
         .card:hover {
-            background-color: #f2d640;
+            background-color: #ffc107;
             color: white;
         }
 
@@ -30,7 +33,17 @@
 </style>
 <div class="container-fluid">
     <div class="text-center">
-        <h1 class="display-4">Bem-Vindo ao HowToMaster</h1>
+        @if (SignInManager.IsSignedIn(User))
+        {
+            var userID = UserManager.GetUserId(User);
+            var userName = utentes.FirstOrDefault(u => u.UserID == userID).Nome;
+            <h1 class="display-4">Bem-Vindo, @userName</h1>
+        }
+        else
+        {
+            <h1 class="display-4">Bem-Vindo ao HowToMaster</h1>
+        }
+
         <p>ESTT, Engenharia Informática, Desenvolvimento Web 2024</p>
         <div></div>
 

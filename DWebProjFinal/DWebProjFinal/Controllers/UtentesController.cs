@@ -215,8 +215,7 @@ namespace DWebProjFinal.Controllers
 
             if (ModelState.IsValid)
             {
-                var userLogin = await _userManager.FindByIdAsync(utente.UserID);
-                
+                var userLogin = await _userManager.FindByIdAsync(utente.UserID);       
                 
                 try
                 {
