@@ -34,7 +34,12 @@ namespace DWebProjFinal.Controllers
         /// </summary>
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-
+        /// <summary>
+        /// Construtor
+        /// </summary>
+        /// <param name="userManager"></param>
+        /// <param name="context"></param>
+        /// <param name="webHostEnvironment"></param>
         public UtentesController(
             UserManager<IdentityUser> userManager,
             ApplicationDbContext context,
@@ -69,8 +74,9 @@ namespace DWebProjFinal.Controllers
                 return NotFound();
             }
 
-            var utentes = await _context.Utentes
+            var utentes = await _context.Utentes.Include(u => u.ListaPaginas)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (utentes == null)
             {
                 return NotFound();
@@ -86,7 +92,14 @@ namespace DWebProjFinal.Controllers
                 return NotFound();
             }
 
-            var utente = await _context.Utentes
+            var userID = _userManager.GetUserId(User);           
+
+            if (userID != id)
+            {
+                return NotFound();
+            }
+
+            var utente = await _context.Utentes.Include(u => u.ListaPaginas)
                 .FirstOrDefaultAsync(m => m.UserID == id);
             if (utente == null)
             {

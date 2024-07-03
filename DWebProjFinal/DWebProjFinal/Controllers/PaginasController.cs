@@ -83,7 +83,6 @@ namespace DWebProjFinal.Controllers
             pagina.Utente = utente;
             pagina.UtenteFK = utente.Id;
 
-
             //-----------------------------//
             //Algoritmo para upload de imagem
             //-----------------------------//

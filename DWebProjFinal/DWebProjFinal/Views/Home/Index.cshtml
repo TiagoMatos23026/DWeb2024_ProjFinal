@@ -1,11 +1,11 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@model IEnumerable<DWebProjFinal.Models.Utentes>
+
+@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 @{
     ViewData["Title"] = "Home Page";
-    var dados = ViewBag.Context as ApplicationDbContext;
-    var utentes = dados.Utentes.ToArray();
-    var paginas = dados.Paginas.ToArray();
+    var utentes = Model.ToArray();
 }
 
 <style>
@@ -36,7 +36,8 @@
         @if (SignInManager.IsSignedIn(User))
         {
             var userID = UserManager.GetUserId(User);
-            var userName = utentes.FirstOrDefault(u => u.UserID == userID).Nome;
+            var userName = Model.FirstOrDefault(u => u.UserID == userID).Nome;
+
             <h1 class="display-4">Bem-Vindo, @userName</h1>
         }
         else
@@ -51,32 +52,35 @@
 
     <div class="container">
         <div class="row">
-            @foreach (var pagina in paginas)
+            @foreach (var utente in utentes)
             {
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3 mt-3">
-                    <div className="card p-3">
-                        <div class="card">
-                            <img class="card-img-top fixed-height-img"
-                                 src="~/imagens/@pagina.Thumbnail"
-                                 alt="Thumbnail da página @pagina.Thumbnail"
-                                 title="@pagina.Thumbnail" />
+                @foreach (var pagina in utente.ListaPaginas)
+                {
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mt-3">
+                        <div className="card p-3">
+                            <div class="card">
+                                <img class="card-img-top fixed-height-img"
+                                     src="~/imagens/@pagina.Thumbnail"
+                                     alt="Thumbnail da página @pagina.Thumbnail"
+                                     title="@pagina.Thumbnail" />
 
-                            <div class="card-body">
-                                <h3 className="card-title">
-                                    <img class="rounded-circle fixed-height-img-icon"
-                                         src="~/imagens/@pagina.Utente.Icon"
-                                         alt="Icon do autor @pagina.Utente.Icon"
-                                         title="@pagina.Utente.Icon" />
+                                <div class="card-body">
+                                    <h3 className="card-title">
+                                        <img class="rounded-circle fixed-height-img-icon"
+                                             src="~/imagens/@pagina.Utente.Icon"
+                                             alt="Icon do autor @pagina.Utente.Icon"
+                                             title="@pagina.Utente.Icon" />
 
-                                    @Html.DisplayFor(modelItem => pagina.Name)
-                                </h3>
-                                <h6 className="card-subtitle mb-2 text-muted">
-                                    @Html.DisplayFor(modelItem => pagina.Utente.Nome)
-                                </h6>
+                                        @Html.DisplayFor(modelItem => pagina.Name)
+                                    </h3>
+                                    <h6 className="card-subtitle mb-2 text-muted">
+                                        @Html.DisplayFor(modelItem => pagina.Utente.Nome)
+                                    </h6>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                }
             }
         </div>
     </div>
