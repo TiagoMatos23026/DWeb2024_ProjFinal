@@ -19,7 +19,6 @@ namespace DWebProjFinal.Models
         public string Nome { get; set; }
 
         [Display(Name = "Imagem de Perfil")]
-        [StringLength(50)]
         public string? Icon { get; set; }
 
         [Display(Name = "Telemóvel")]

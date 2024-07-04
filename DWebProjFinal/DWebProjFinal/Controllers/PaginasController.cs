@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using System.Reflection;
 
 namespace DWebProjFinal.Controllers
 {
@@ -19,16 +20,19 @@ namespace DWebProjFinal.Controllers
     {
         private readonly ApplicationDbContext _context;
 
+        private readonly CategoriasController _categoriasController;
+
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         private readonly UserManager<IdentityUser> _userManager;
 
         public PaginasController(
-
+            CategoriasController categoriasController,
             UserManager<IdentityUser> userManager,
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment)
         {
+            _categoriasController = categoriasController;
             _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;
             _context = context;
@@ -42,6 +46,11 @@ namespace DWebProjFinal.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
+        /// <summary>
+        /// Mostra a Página e o seu conteúdo
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET: Paginas/Details/5
         [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
@@ -53,7 +62,9 @@ namespace DWebProjFinal.Controllers
 
             var paginas = await _context.Paginas
                 .Include(p => p.Utente)
+                .Include(l => l.ListaCategorias)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (paginas == null)
             {
                 return NotFound();
@@ -74,10 +85,11 @@ namespace DWebProjFinal.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Descricao,Conteudo,Dificuldade")] Paginas pagina, IFormFile ImgThumbnail)
+        public async Task<IActionResult> Create([Bind("Id,Name,Descricao,Conteudo,Dificuldade")] Paginas pagina, IFormFile ImgThumbnail, string[] ListaCategorias)
         {
             var userID = _userManager.GetUserId(User);
-            var utente = _context.Utentes.Include(x => x.ListaPaginas).FirstOrDefault(u => u.UserID == userID);
+            var utente = _context.Utentes.Include(x => x.ListaPaginas)
+                .FirstOrDefault(u => u.UserID == userID);
 
             //guarda o objeto dentro do modelo a ser uploaded
             pagina.Utente = utente;
@@ -151,6 +163,35 @@ namespace DWebProjFinal.Controllers
             //--------------//
             //Fim do algoritmo
             //--------------//
+
+            foreach (var Nome in ListaCategorias)
+            {
+                if (Nome == null || Nome == "")
+                {
+
+                }
+                else
+                {
+                    var categoria = _context.Categorias.FirstOrDefault(c => c.Nome == Nome);
+
+                    if (categoria == null) //se a categoria inserida não existir na bd
+                    {
+                        var newCategoria = new Categorias { Nome = Nome }; //cria uma nova
+
+                        _categoriasController.Create(newCategoria); //chama o método Create de Categorias
+
+                        _context.Categorias.Add(newCategoria); //insere a nova categoria na bd
+                        _context.SaveChanges();
+
+                        pagina.ListaCategorias.Add(newCategoria); //adiciona a nova categoria à lista de categorias da página
+                    }
+                    else
+                    {
+                        pagina.ListaCategorias.Add(categoria);
+                    }
+                }        
+            }
+
             utente.ListaPaginas.Add(pagina);
 
             _context.Update(utente);
@@ -158,7 +199,7 @@ namespace DWebProjFinal.Controllers
             _context.Add(pagina);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return View();
         }
 
         // GET: Paginas/Edit/5

@@ -41,7 +41,8 @@ namespace DWebProjFinal.Models
         /// <summary>
         /// Dificuldade, de 1-5 da página
         /// </summary>
-        [Required(ErrorMessage = "O Tutorial precisa de uma dificuldade")]
+        [Required(ErrorMessage = "A página precisa de indicar a dificuldade")]
+        [RegularExpression("^[1-5]$", ErrorMessage = "A dificuldade tem de estar entre 1 e 5")]
         public int Dificuldade { get; set; }
 
         /// <summary>

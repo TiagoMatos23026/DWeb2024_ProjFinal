@@ -54,13 +54,12 @@ namespace DWebProjFinal.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nome")] Categorias categorias)
+        public async Task<IActionResult> Create([Bind("Id, Nome")] Categorias categorias)
         {
+
             if (ModelState.IsValid)
             {
                 _context.Add(categorias);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
             }
             return View(categorias);
         }

@@ -57,7 +57,8 @@ namespace DWebProjFinal.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Utentes.ToListAsync());
+            return NotFound();
+            
         }
 
         /// <summary>

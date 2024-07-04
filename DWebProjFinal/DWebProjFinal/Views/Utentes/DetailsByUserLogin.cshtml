@@ -22,6 +22,8 @@
     .card {
         background-color: white;
         transition: 0.3s;
+        color: black;
+        text-decoration: none;
     }
 
         .card:hover {
@@ -30,86 +32,85 @@
         }
 
     }
+
+    a {
+        text-decoration: none;
+    }
+
+        a:link {
+            text-decoration: none;
+        }
+
+        a:visited {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: none;
+        }
+
+        a:active {
+            text-decoration: none;
+        }
 </style>
-<h1>Meu Perfil</h1>
+<div class="row row-cols-auto mt-2">
+    <div class="col">
+        <img class="border rounded-circle fixed-height-img-big"
+             src="~/imagens/@Html.DisplayFor(model => model.Icon)"
+             alt="Icon do Utilizador @Html.DisplayFor(model => model.Nome)"
+             title="@Html.DisplayFor(model => model.Icon)" />
+    </div>
+    <div class="col">
+        <div class="container mt-5">
+            <h1>@Html.DisplayFor(model => model.Nome)</h1>
+            <p>@Html.DisplayFor(model => model.Biografia)</p>
+            <div class="row row-cols-auto mt-2">
+                <div class="col">
+                    <a asp-action="Edit" asp-route-id="@Model?.Id"><button class="btn btn-outline-warning">Editar Perfil</button></a>
+                </div>
 
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<br />
 <div>
-    <h4>Dados Públicos</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Nome)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Nome)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Icon)
-        </dt>
-        <dd class="col-sm-10">
-            <img class="fixed-height-img-big"
-                 src="~/imagens/@Html.DisplayFor(model => model.Icon)"
-                 alt="Icon do Utilizador @Html.DisplayFor(model => model.Nome)"
-                 title="@Html.DisplayFor(model => model.Icon)" />
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Biografia)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Biografia)
-        </dd>
-    </dl>
-    <h4>Dados Pessoais</h4>
-    <hr />
-    <dl class="row">
-
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Telemovel)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Telemovel)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.dataNasc)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.dataNasc)
-        </dd>
-    </dl>
-
     <h4>Páginas Escritas</h4>
     <hr />
     <div class="row">
         @foreach (var pagina in Model.ListaPaginas)
         {
             <div class="col-12 col-sm-6 col-md-4 col-lg-3 mt-3">
-                <div className="card p-3">
-                    <div class="card">
-                        <img class="card-img-top fixed-height-img"
-                             src="~/imagens/@pagina.Thumbnail"
-                             alt="Thumbnail da página @pagina.Thumbnail"
-                             title="@pagina.Thumbnail" />
+                <a asp-controller="Paginas" asp-action="Details" asp-route-id="@pagina.Id">
+                    <div className="card p-3">
+                        <div class="card">
+                            <img class="card-img-top fixed-height-img"
+                                 src="~/imagens/@pagina.Thumbnail"
+                                 alt="Thumbnail da página @pagina.Thumbnail"
+                                 title="@pagina.Thumbnail" />
 
-                        <div class="card-body">
-                            <h3 className="card-title">
-                                <img class="rounded-circle fixed-height-img-icon"
-                                     src="~/imagens/@pagina.Utente.Icon"
-                                     alt="Icon do autor @pagina.Utente.Icon"
-                                     title="@pagina.Utente.Icon" />
+                            <div class="card-body">
+                                <h4 className="card-title">
+                                    <img class="rounded-circle fixed-height-img-icon"
+                                         src="~/imagens/@pagina.Utente.Icon"
+                                         alt="Icon do autor @pagina.Utente.Icon"
+                                         title="@pagina.Utente.Icon" />
 
-                                @Html.DisplayFor(modelItem => pagina.Name)
-                            </h3>
-                            <h6 className="card-subtitle mb-2 text-muted">
-                                @Html.DisplayFor(modelItem => pagina.Utente.Nome)
-                            </h6>
+                                    @Html.DisplayFor(modelItem => pagina.Name)
+                                </h4>
+                                <h6 className="card-subtitle mb-2 text-muted">
+                                    @Html.DisplayFor(modelItem => pagina.Utente.Nome)
+                                </h6>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         }
     </div>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Editar</a> |
-    <a asp-action="Index">Voltar</a>
+    <a asp-controller="" asp-action="Index"><button class="btn btn-outline-warning">Voltar</button></a>
 </div>

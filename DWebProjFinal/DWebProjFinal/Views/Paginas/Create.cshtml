@@ -8,56 +8,74 @@
 
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-5">
         <form asp-action="Create" method="post" enctype="multipart/form-data">
 
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="form-group">
+            <div class="form-group mb-2">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group mb-2">
                 <label asp-for="Descricao" class="control-label"></label>
-                <input asp-for="Descricao" class="form-control" />
+                <textarea asp-for="Descricao" class="form-control"></textarea>
                 <span asp-validation-for="Descricao" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group mb-2">
                 <label asp-for="Conteudo" class="control-label"></label>
-                <input asp-for="Conteudo" class="form-control" />
+                <textarea asp-for="Conteudo" class="form-control"></textarea>
                 <span asp-validation-for="Conteudo" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group mb-2">
                 <label asp-for="Dificuldade" class="control-label"></label>
-                <input asp-for="Dificuldade" class="form-control" />
+                <input asp-for="Dificuldade" class="form-control" type="number" min="1" max="5" />
                 <span asp-validation-for="Dificuldade" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group mb-2">
                 <label asp-for="Thumbnail" class="control-label"></label>
-
-                <input type="file"
-                       name="ImgThumbnail"
-                       accept=".png,.jpg,.jpeg"
-                       class="form-control" />
+                <input type="file" name="ImgThumbnail" accept=".png,.jpg,.jpeg" class="form-control" />
                 <span asp-validation-for="Thumbnail" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <input type="submit" value="Create" class="mt-1 btn btn-primary" />
+            <div class="form-group mb-2">
+                <label asp-for="ListaCategorias" class="control-label"></label>
+                <div id="categorias-container">
+                    <input name="ListaCategorias" class="form-control mb-2" />
+                </div>
+                <button type="button" class="btn btn-secondary" id="add-categoria-button">Add Categoria</button>
+            </div>
+
+            <div class="form-group mb-2">
+                <input type="submit" value="Create" class="mt-1 btn btn-warning" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Voltar</a>
+    <a asp-controller="Home" asp-action="Index">Voltar</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        let categoriaIndex = 1;
+        document.getElementById('add-categoria-button').addEventListener('click', function () {
+            var container = document.getElementById('categorias-container');
+            var input = document.createElement('input');
+            input.name = `ListaCategorias`;
+            input.className = 'form-control mb-2';
+            container.appendChild(input);
+            categoriaIndex++;
+        });
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

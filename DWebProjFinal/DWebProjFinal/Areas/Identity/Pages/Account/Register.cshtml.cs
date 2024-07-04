@@ -116,6 +116,8 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
             /// Recolhe os dados do Utente
             /// </summary>
             public Utentes utente { get; set; }
+
+            [Display(Name = "Imagem de Perfil")]
             public IFormFile IconFile { get; set; }
         }
 
