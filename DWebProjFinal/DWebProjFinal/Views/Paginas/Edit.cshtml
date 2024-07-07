@@ -1,58 +1,93 @@
 ﻿@model DWebProjFinal.Models.Paginas
 
-@{
-    ViewData["Title"] = "Edit";
-}
+<style>
+    .thumbnail {
+        max-height: 100px;
+        width: auto;
+    }
+</style>
 
 <h1>Editar Página</h1>
 
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Descricao" class="control-label"></label>
-                <input asp-for="Descricao" class="form-control" />
-                <span asp-validation-for="Descricao" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Conteudo" class="control-label"></label>
-                <input asp-for="Conteudo" class="form-control" />
-                <span asp-validation-for="Conteudo" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Dificuldade" class="control-label"></label>
-                <input asp-for="Dificuldade" class="form-control" />
-                <span asp-validation-for="Dificuldade" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Thumbnail" class="control-label"></label>
-                <input asp-for="Thumbnail" class="form-control" />
-                <span asp-validation-for="Thumbnail" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UtenteFK" class="control-label"></label>
-                <select asp-for="UtenteFK" class="form-control" asp-items="ViewBag.UtenteFK"></select>
-                <span asp-validation-for="UtenteFK" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+<form asp-action="Edit" enctype="multipart/form-data">
 
-<div>
-    <a asp-action="Index">Voltar</a>
-</div>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="UtenteFK" />
+    <input type="hidden" asp-for="Thumbnail" />
+    <input type="hidden" asp-for="Utente" />
+
+
+    <div class="form-group">
+        Nova <label asp-for="Thumbnail" class="control-label"></label>
+        <input type="file" name="ImgThumbnail" accept=".png,.jpg,.jpeg" class="form-control"/>
+        <span asp-validation-for="Thumbnail" class="text-danger"></span>
+    </div>
+
+
+    <h1>
+        <div class="form-group">
+            Novo <label asp-for="Name" class="control-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+    </h1>
+
+    <div>
+        <hr />
+        <div class="row">
+            <h5 class="col-sm-10">
+                <div class="form-group">
+                    Nova <label asp-for="Descricao" class="control-label"></label>
+                    <textarea asp-for="Descricao" class="form-control"></textarea>
+                    <span asp-validation-for="Descricao" class="text-danger"></span>
+                </div>
+            </h5>
+
+            <h5 class="col-sm-10">
+                <div class="form-group">
+                    Novo <label asp-for="Conteudo" class="control-label"></label>
+                    <textarea asp-for="Conteudo" class="form-control"></textarea>
+                    <span asp-validation-for="Conteudo" class="text-danger"></span>
+                </div>
+            </h5>
+        </div>
+    </div>
+
+    <hr />
+    <div class="row row-cols-auto">
+        <div class="col">
+            <h5>
+                Dificuldade:
+            </h5>
+            <p>
+                <div class="form-group">
+                    Nova <label asp-for="Dificuldade" class="control-label"></label>
+                    <input asp-for="Dificuldade" class="form-control" />
+                    <span asp-validation-for="Dificuldade" class="text-danger"></span>
+                </div>
+            </p>
+        </div>
+    </div>
+
+    <div class="row row-cols-auto">
+        <div class="col">
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-outline-warning" />
+            </div>
+        </div>
+
+        <div class="col">
+            <a class="btn btn-outline-success" asp-action="Index">Voltar</a>
+        </div>
+    </div>
+
+
+</form>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

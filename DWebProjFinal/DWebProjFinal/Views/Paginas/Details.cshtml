@@ -1,14 +1,43 @@
-﻿@model DWebProjFinal.Models.Paginas
+﻿@using Microsoft.AspNetCore.Identity
+@model DWebProjFinal.Models.Paginas
+@inject UserManager<IdentityUser> UserManager
 
 @{
     ViewData["Title"] = "Details";
 }
 <style>
+    .botao {
+        text-decoration: none;
+    }
 
     .thumbnail {
         max-height: 300px;
         object-fit: cover;
     }
+
+    .button {
+        text-decoration: none;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+        a:link {
+            text-decoration: none;
+        }
+
+        a:visited {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: none;
+        }
+
+        a:active {
+            text-decoration: none;
+        }
 
 </style>
 
@@ -34,18 +63,21 @@
 
 <hr />
 <div class="row row-cols-auto">
+
     <div class="col">
         <h5>
             Autor:
         </h5>
         <p>@Html.DisplayFor(model => model.Utente.Nome)</p>
     </div>
+
     <div class="col">
         <h5>
             Dificuldade:
         </h5>
         <p>Nível @Html.DisplayFor(model => model.Dificuldade)</p>
     </div>
+
     <div class="col">
         <h5>
             Categorias:
@@ -63,7 +95,13 @@
 </div>
 
 <div>
-    <button class="btn btn-outline-warning"><a asp-action="Edit" asp-route-id="@Model?.Id">Editar</a></button>
+    @if (UserManager.GetUserId(User) == Model.Utente.UserID)
+    {
 
-    <a asp-action="Index">Voltar</a>
+        <a class="btn btn-outline-warning" asp-action="Edit" asp-route-id="@Model?.Id">Editar</a>
+        <a class="btn btn-outline-warning" asp-action="Delete" asp-route-id="@Model?.Id">Apagar</a>
+    }
+
+
+    <a class="btn btn-outline-success" asp-controller="Home" asp-action="Index">Voltar</a>
 </div>

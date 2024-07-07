@@ -220,7 +220,7 @@ namespace DWebProjFinal.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Icon,Telemovel,dataNasc,Biografia,UserID")] Utentes utente)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Telemovel,dataNasc,Biografia,UserID")] Utentes utente, IFormFile IconFile)
         {
             if (id != utente.Id)
             {
@@ -229,27 +229,34 @@ namespace DWebProjFinal.Controllers
 
             if (ModelState.IsValid)
             {
-                var userLogin = await _userManager.FindByIdAsync(utente.UserID);       
-                
-                try
-                {
-                    //await _userManager.ChangePasswordAsync(userLogin, currentPassword, newPassword);
-                    _context.Update(utente);
-                    await _context.SaveChangesAsync();
+                var currentUser = _userManager.GetUserId(User);
 
-                }
-                catch (Exception ex)
+                if (currentUser != utente.UserID)
                 {
-                    if (!UtentesExists(utente.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    return NotFound();
                 }
-                return RedirectToAction(nameof(Index));
+                else
+                {
+                    try
+                    {
+                        //await _userManager.ChangePasswordAsync(userLogin, currentPassword, newPassword);
+                        _context.Update(utente);
+                        await _context.SaveChangesAsync();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        if (!UtentesExists(utente.Id))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction(nameof(Index));
+                }
             }
             return View(utente);
         }

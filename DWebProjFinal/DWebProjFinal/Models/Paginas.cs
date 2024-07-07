@@ -66,6 +66,8 @@ namespace DWebProjFinal.Models
         /// <summary>
         /// Lista de categorias que a página contém
         /// </summary>
+
+        [Display(Name = "Lista de Categorias")]
         public ICollection<Categorias> ListaCategorias { get; set; }
     }
 }

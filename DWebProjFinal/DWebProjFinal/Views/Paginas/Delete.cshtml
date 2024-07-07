@@ -4,45 +4,39 @@
     ViewData["Title"] = "Delete";
 }
 
+<style>
+    .thumbnail
+    {
+        max-height:100px;
+        width:auto;
+    }
+</style>
 <h1>Apagar</h1>
 
 <h3>Tem a certeza que pretende apagar esta página?</h3>
 <div>
-    <h4>Páginas</h4>
     <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Descricao)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Descricao)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Dificuldade)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Dificuldade)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Thumbnail)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Thumbnail)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Utente)
-        </dt>
-    </dl>
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mt-3">
+            <div className="card p-3">
+                <div class="card">
+                    <img class="card-img-top fixed-height-img"
+                     src="~/imagens/@Html.DisplayFor(model => model.Thumbnail)"/>
+
+                    <div class="card-body">
+                        <h4 className="card-title">
+                            @Html.DisplayFor(model=> model.Name)
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <br/>
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Voltar</a>
+        <input type="submit" value="Delete" class="btn btn-outline-warning" />
+        <a class = "btn btn-outline-success" asp-action="Index">Voltar</a>
     </form>
 </div>

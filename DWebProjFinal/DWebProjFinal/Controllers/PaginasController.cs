@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using System.Reflection;
+using DWebProjFinal.Data.Migrations;
 
 namespace DWebProjFinal.Controllers
 {
@@ -43,7 +44,7 @@ namespace DWebProjFinal.Controllers
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Paginas.Include(p => p.Utente);
-            return View(await applicationDbContext.ToListAsync());
+            return NotFound();
         }
 
         /// <summary>
@@ -189,7 +190,7 @@ namespace DWebProjFinal.Controllers
                     {
                         pagina.ListaCategorias.Add(categoria);
                     }
-                }        
+                }
             }
 
             utente.ListaPaginas.Add(pagina);
@@ -199,7 +200,7 @@ namespace DWebProjFinal.Controllers
             _context.Add(pagina);
             await _context.SaveChangesAsync();
 
-            return View();
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: Paginas/Edit/5
@@ -210,13 +211,19 @@ namespace DWebProjFinal.Controllers
                 return NotFound();
             }
 
-            var paginas = await _context.Paginas.FindAsync(id);
-            if (paginas == null)
+            var pagina = _context.Paginas.Include(p => p.Utente).FirstOrDefault(c => c.Id == id);
+            var userAtual = _userManager.GetUserId(User);
+
+            if (pagina.Utente.UserID != userAtual)
+            {
+                return BadRequest();
+            }
+
+            if (pagina == null)
             {
                 return NotFound();
             }
-            ViewData["UtenteFK"] = new SelectList(_context.Utentes, "Id", "Email", paginas.UtenteFK);
-            return View(paginas);
+            return View(pagina);
         }
 
         // POST: Paginas/Edit/5
@@ -224,35 +231,113 @@ namespace DWebProjFinal.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Descricao,Dificuldade,Conteudo,Thumbnail,UtenteFK")] Paginas paginas)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Descricao,Dificuldade,Conteudo,Thumbnail,UtenteFK")] Paginas pagina, IFormFile? ImgThumbnail)
         {
-            if (id != paginas.Id)
+            if (id != pagina.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            var utente = _context.Utentes.FirstOrDefault(u => u.Id == pagina.UtenteFK);
+
+            var paginaUserID = utente.UserID;
+
+            var userAtual = _userManager.GetUserId(User);
+
+            if (userAtual != paginaUserID)
             {
-                try
+                return NotFound();
+            }
+            else
+            {
+                if (ModelState.IsValid)
                 {
-                    _context.Update(paginas);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PaginasExists(paginas.Id))
+
+                    //-----------------------------//
+                    //Algoritmo para upload de imagem
+                    //-----------------------------//
+                    string nomeImagem = "";
+                    bool haImagem = false;
+
+                    // há ficheiro?
+                    if (ImgThumbnail == null)
                     {
-                        return NotFound();
+                        
                     }
                     else
                     {
-                        throw;
+                        // há ficheiro, mas é uma imagem?
+                        if (!(ImgThumbnail.ContentType == "image/png" ||
+                             ImgThumbnail.ContentType == "image/jpeg" ||
+                             ImgThumbnail.ContentType == "image/jpg"
+                           ))
+                        {
+                            // não
+                            // vamos usar uma imagem pre-definida
+                            pagina.Thumbnail = "defaultThumbnail.png";
+                        }
+                        else
+                        {
+                            // há imagem
+                            haImagem = true;
+                            // gerar nome imagem
+                            Guid g = Guid.NewGuid();
+                            nomeImagem = g.ToString();
+                            string extensaoImagem = Path.GetExtension(ImgThumbnail.FileName).ToLowerInvariant();
+                            nomeImagem += extensaoImagem;
+                            // guardar o nome do ficheiro na BD
+                            pagina.Thumbnail = nomeImagem;
+                        }
                     }
+
+                    //a imagem ao chegar aqui está pronta a ser uploaded
+                    if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
+                    {
+
+                        //determinar o local de armazenamento da imagem dentro do disco rígido
+                        string localizacaoImagem = _webHostEnvironment.WebRootPath;
+                        localizacaoImagem = Path.Combine(localizacaoImagem, "imagens");
+
+                        //será que o local existe?
+                        if (!Directory.Exists(localizacaoImagem))   //se não houver local para guardar a imagem...
+                        {
+                            Directory.CreateDirectory(localizacaoImagem);   //criar um novo local
+                        }
+
+                        //existindo local para guardar a imagem, informar o servidor do seu nome
+                        //e de onde vai ser guardada
+                        string nomeFicheiro = Path.Combine(localizacaoImagem, nomeImagem);
+
+                        //guardar a imagem no disco rígido
+                        using var stream = new FileStream(nomeFicheiro, FileMode.Create);
+                        await ImgThumbnail.CopyToAsync(stream);
+
+                    }
+                    //--------------//
+                    //Fim do algoritmo
+                    //--------------//
+
+                    try
+                    {
+                        _context.Update(pagina);
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!PaginasExists(pagina.Id))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction("Index", "Home");
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["UtenteFK"] = new SelectList(_context.Utentes, "Id", "Email", paginas.UtenteFK);
-            return View(paginas);
+
+            return View();
         }
 
         // GET: Paginas/Delete/5
@@ -266,6 +351,14 @@ namespace DWebProjFinal.Controllers
             var paginas = await _context.Paginas
                 .Include(p => p.Utente)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
+            var userAtual = _userManager.GetUserId(User);
+
+            if (paginas.Utente.UserID != userAtual)
+            {
+                return BadRequest();      
+            }
+
             if (paginas == null)
             {
                 return NotFound();
@@ -279,14 +372,24 @@ namespace DWebProjFinal.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var paginas = await _context.Paginas.FindAsync(id);
+            var paginas = await _context.Paginas
+                .Include(p => p.Utente)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            var userAtual = _userManager.GetUserId(User);
+
+            if (paginas.Utente.UserID != userAtual)
+            {
+                return BadRequest();
+            }
+
             if (paginas != null)
             {
                 _context.Paginas.Remove(paginas);
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Home");
         }
 
         private bool PaginasExists(int id)
