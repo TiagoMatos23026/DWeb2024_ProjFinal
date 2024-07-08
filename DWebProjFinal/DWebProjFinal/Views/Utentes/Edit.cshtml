@@ -6,71 +6,62 @@
 
 <h1>Editar Utilizador</h1>
 
-<div class="row">
-    <h3>Dados Públicos</h3>
-    <hr/>
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
 
+<form asp-action="Edit" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <input type="hidden" asp-for="dataNasc" />
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="Telemovel" />
+    <input type="hidden" asp-for="Icon" />
+    <input type="hidden" asp-for="UserID" />
+
+    <h3>
+        <label asp-for="Icon" class="control-label"></label>
+
+        <input type="file"
+               name="IconFile"
+               accept=".png,.jpg,.jpeg"
+               class="form-control" />
+        <span asp-validation-for="Icon" class="text-danger"></span>
+    </h3>
+
+
+    <div class="container mt-2">
+        <h3>
             <div class="form-group">
                 <label asp-for="Nome" class="control-label"></label>
                 <input asp-for="Nome" class="form-control" />
                 <span asp-validation-for="Nome" class="text-danger"></span>
             </div>
+        </h3>
 
-            <div class="form-group">
-                <label asp-for="Icon" class="control-label"></label>
-                <input asp-for="Icon" class="form-control" />
-                <span asp-validation-for="Icon" class="text-danger"></span>
-            </div>
-
+        <h3>
             <div class="form-group">
                 <label asp-for="Biografia" class="control-label"></label>
-                <input asp-for="Biografia" class="form-control" />
+                <textarea asp-for="Biografia" class="form-control"></textarea>
                 <span asp-validation-for="Biografia" class="text-danger"></span>
             </div>
+        </h3>
 
-            <br />
-
-            <h3>Dados Pessoais</h3>
-            <hr/>
-            
-            <div class="form-group">
-                <label asp-for="dataNasc" class="control-label"></label>
-                <input asp-for="dataNasc" class="form-control" />
-                <span asp-validation-for="dataNasc" class="text-danger"></span>
-            </div>
+        <div class="row row-cols-auto mt-2">
 
             <div class="form-group">
-                <label asp-for="Telemovel" class="control-label"></label>
-                <input asp-for="Telemovel" class="form-control" />
-                <span asp-validation-for="Telemovel" class="text-danger"></span>
+                <input class="btn btn-outline-warning" type="submit" value="Guardar" class="btn btn-primary" />
             </div>
 
-            <br />
-
-            <h3>Dados de Login</h3>
-            <hr />
-                <div class="form-group">
-                <label asp-for="UserID" class="control-label"></label>
-                <input asp-for="UserID" class="form-control" />
-                <span asp-validation-for="UserID" class="text-danger"></span>
-                </div>
-            <br/>
-
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+            <div class="col">
+                <a class="btn btn-outline-success" asp-action="Index">Voltar</a>
             </div>
-        </form>
+
+        </div>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Voltar</a>
-</div>
+</form>
+<br />
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

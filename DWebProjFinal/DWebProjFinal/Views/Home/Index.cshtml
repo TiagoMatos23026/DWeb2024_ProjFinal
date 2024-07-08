@@ -1,22 +1,24 @@
-﻿@model IEnumerable<DWebProjFinal.Models.Utentes>
+﻿@model IEnumerable<DWebProjFinal.Models.Paginas>
 
 @using Microsoft.AspNetCore.Identity
+@using MoreLinq
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 @{
     ViewData["Title"] = "Home Page";
-    var utentes = Model.ToArray();
+    var paginas = Model.ToArray().Shuffle();
 }
+
 
 <style>
     .fixed-height-img {
-        height: 200px;
-        width: auto;
+        max-height: 200px;
+        object-fit: cover;
     }
 
     .fixed-height-img-icon {
-        height: 40px;
-        width: auto;
+        max-height: 40px;
+        object-fit: cover;
     }
 
     .card {
@@ -24,6 +26,8 @@
         transition: 0.3s;
         color: black;
         text-decoration: none;
+        display: flex;
+        flex-direction: column;
     }
 
         .card:hover {
@@ -31,6 +35,19 @@
             color: white;
         }
 
+    }
+
+    .card-content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .card-body {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     a {
@@ -47,20 +64,21 @@
 
         a:hover {
             text-decoration: none;
+            color: white;
         }
 
         a:active {
             text-decoration: none;
         }
 </style>
+
 <div class="container-fluid">
     <div class="text-center">
         @if (SignInManager.IsSignedIn(User))
         {
             var userID = UserManager.GetUserId(User);
-            var userName = Model.FirstOrDefault(u => u.UserID == userID).Nome;
 
-            <h1 class="display-4">Bem-Vindo, @userName</h1>
+            <h1 class="display-4">Bem-Vindo</h1>
         }
         else
         {
@@ -69,46 +87,42 @@
 
         <p>ESTT, Engenharia Informática, Desenvolvimento Web 2024</p>
         <div></div>
-
     </div>
 
     <div class="container">
         <div class="row">
-            @foreach (var utente in utentes)
+
+            @foreach (var pagina in paginas)
             {
-                @foreach (var pagina in utente.ListaPaginas)
-                {
 
-                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mt-3">
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 mt-3">
+                    <div class="card">
                         <a asp-controller="Paginas" asp-action="Details" asp-route-id="@pagina.Id">
-                            <div className="card p-3">
-                                <div class="card">
-                                    <img class="card-img-top fixed-height-img"
-                                         src="~/imagens/@pagina.Thumbnail"
-                                         alt="Thumbnail da página @pagina.Thumbnail"
-                                         title="@pagina.Thumbnail" />
-
-                                    <div class="card-body">
-                                        <h4 className="card-title">
-                                            <img class="rounded-circle fixed-height-img-icon"
-                                                 src="~/imagens/@pagina.Utente.Icon"
-                                                 alt="Icon do autor @pagina.Utente.Icon"
-                                                 title="@pagina.Utente.Icon" />
-
-                                            @Html.DisplayFor(modelItem => pagina.Name)
-                                        </h4>
-                                        <h6 className="card-subtitle mb-2 text-muted">
-                                            @Html.DisplayFor(modelItem => pagina.Utente.Nome)
-                                        </h6>
-                                    </div>
-                                </div>
-                            </div>
+                            <img class="card-img-top fixed-height-img"
+                                 src="~/imagens/@pagina.Thumbnail"
+                                 alt="Thumbnail da página @pagina.Thumbnail"
+                                 title="@pagina.Thumbnail" />
                         </a>
+                        <div class="card-content">
+                            <div class="card-body">
+                                <h4>
+                                    <img class="rounded-circle fixed-height-img-icon"
+                                         src="~/imagens/@pagina.Utente.Icon"
+                                         alt="Icon do autor @pagina.Utente.Icon"
+                                         title="@pagina.Utente.Icon" />
+                                    @Html.DisplayFor(modelItem => pagina.Name)
+                                </h4>
+                                <a style="color: black" asp-controller="Utentes" asp-action="Details" asp-route-id="@pagina.Utente.Id">
+                                    <h6>
+                                        @Html.DisplayFor(modelItem => pagina.Utente.Nome)
+                                    </h6>
+                                </a>
+                            </div>
+                        </div>
                     </div>
+                </div>
 
-                }
             }
         </div>
     </div>
 </div>
-

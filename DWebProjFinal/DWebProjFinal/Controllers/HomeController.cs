@@ -27,12 +27,14 @@ namespace DWebProjFinal.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var utentes = _context.Utentes.
-                Include(u => u.ListaPaginas)
+            var paginas = _context.Paginas.
+                Include(u => u.Utente)
                 .ToArray();
 
             ViewBag.UserId = _userManager.GetUserId(HttpContext.User);
-            return View(utentes);
+
+
+            return View(paginas);
         }
 
         public IActionResult Privacy()

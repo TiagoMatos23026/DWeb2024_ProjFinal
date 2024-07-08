@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.General;
 using Microsoft.AspNetCore.Identity;
+using Humanizer.Localisation;
+using ImageMagick;
 
 namespace DWebProjFinal.Controllers
 {
@@ -58,7 +60,7 @@ namespace DWebProjFinal.Controllers
         public async Task<IActionResult> Index()
         {
             return NotFound();
-            
+
         }
 
         /// <summary>
@@ -93,7 +95,7 @@ namespace DWebProjFinal.Controllers
                 return NotFound();
             }
 
-            var userID = _userManager.GetUserId(User);           
+            var userID = _userManager.GetUserId(User);
 
             if (userID != id)
             {
@@ -165,8 +167,6 @@ namespace DWebProjFinal.Controllers
                 //a imagem ao chegar aqui está pronta a ser uploaded
                 if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
                 {
-                    //encolher a imagem a um tamanho apropriado
-                    //procurar package no nuget que trate disso
 
                     //determinar o local de armazenamento da imagem dentro do disco rígido
                     string localizacaoImagem = _webHostEnvironment.WebRootPath;
@@ -202,7 +202,14 @@ namespace DWebProjFinal.Controllers
 
             var utente = await _context.Utentes.FindAsync(id);
             //var userLogin = await _userManager.FindByIdAsync(utente.UserID);
-            
+
+            var userAtual = _userManager.GetUserId(User);
+
+            if (userAtual != utente.UserID)
+            {
+                return BadRequest();
+            }
+
             if (utente == null)
             {
                 return NotFound();
@@ -220,46 +227,166 @@ namespace DWebProjFinal.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Telemovel,dataNasc,Biografia,UserID")] Utentes utente, IFormFile IconFile)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Telemovel,dataNasc,Biografia,UserID,Icon")] Utentes utente, IFormFile? IconFile)
         {
             if (id != utente.Id)
             {
                 return NotFound();
             }
 
+            var userAtual = _userManager.GetUserId(User);
+
+            if (userAtual != utente.UserID)
+            {
+                return BadRequest();
+            }
+
             if (ModelState.IsValid)
             {
-                var currentUser = _userManager.GetUserId(User);
 
-                if (currentUser != utente.UserID)
+                //-----------------------------//
+                //Algoritmo para upload de imagem
+                //-----------------------------//
+                string nomeImagem = "";
+                bool haImagem = false;
+
+                // há ficheiro?
+                if (IconFile == null)
                 {
-                    return NotFound();
+
                 }
                 else
                 {
-                    try
+                    // há ficheiro, mas é uma imagem?
+                    if (!(IconFile.ContentType == "image/png" ||
+                         IconFile.ContentType == "image/jpeg" ||
+                         IconFile.ContentType == "image/jpg"
+                       ))
                     {
-                        //await _userManager.ChangePasswordAsync(userLogin, currentPassword, newPassword);
-                        _context.Update(utente);
-                        await _context.SaveChangesAsync();
-
+                        // não
+                        // vamos usar uma imagem pre-definida
+                        utente.Icon = "defaultThumbnail.png";
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        if (!UtentesExists(utente.Id))
-                        {
-                            return NotFound();
-                        }
-                        else
-                        {
-                            throw;
-                        }
+                        // há imagem
+                        haImagem = true;
+                        // gerar nome imagem
+                        Guid g = Guid.NewGuid();
+                        nomeImagem = g.ToString();
+                        string extensaoImagem = Path.GetExtension(IconFile.FileName).ToLowerInvariant();
+                        nomeImagem += extensaoImagem;
+                        // guardar o nome do ficheiro na BD
+                        utente.Icon = nomeImagem;
                     }
-                    return RedirectToAction(nameof(Index));
                 }
+
+                //a imagem ao chegar aqui está pronta a ser uploaded
+                if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
+                {
+
+                    //determinar o local de armazenamento da imagem dentro do disco rígido
+                    string localizacaoImagem = _webHostEnvironment.WebRootPath;
+                    localizacaoImagem = Path.Combine(localizacaoImagem, "imagens");
+
+                    //será que o local existe?
+                    if (!Directory.Exists(localizacaoImagem))   //se não houver local para guardar a imagem...
+                    {
+                        Directory.CreateDirectory(localizacaoImagem);   //criar um novo local
+                    }
+
+                    //existindo local para guardar a imagem, informar o servidor do seu nome
+                    //e de onde vai ser guardada
+                    string nomeFicheiro = Path.Combine(localizacaoImagem, nomeImagem);
+
+                    //guardar a imagem no disco rígido
+                    using var stream = new FileStream(nomeFicheiro, FileMode.Create);
+                    await IconFile.CopyToAsync(stream);
+
+                }
+                //--------------//
+                //Fim do algoritmo
+                //--------------//
+
+                try
+                {
+                    //await _userManager.ChangePasswordAsync(userLogin, currentPassword, newPassword);
+                    _context.Update(utente);
+                    await _context.SaveChangesAsync();
+
+                }
+                catch (Exception ex)
+                {
+                    if (!UtentesExists(utente.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction("Index", "Home");
+
             }
             return View(utente);
         }
+
+        public async Task<IActionResult> ChangePassword(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var utente = await _context.Utentes
+                .FirstOrDefaultAsync(m => m.Id == id);
+            var userLogin = await _context.Utentes
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            var userAtual = _userManager.GetUserId(User);
+
+
+            if (utente.UserID != userAtual)
+            {
+                return BadRequest();
+            }
+
+            if (utente == null || userLogin == null)
+            {
+                return BadRequest();
+            }
+
+            return View(utente);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(int id, string currentPassword, string newPassword)
+        {
+            var utente = await _context.Utentes
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            var userAtual = _userManager.GetUserId(User);
+
+            var user = await _userManager.GetUserAsync(User);
+
+            if (utente.UserID != userAtual)
+            {
+                return BadRequest();
+            }
+            try
+            {
+                await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+                return RedirectToAction("DetailsByUserLogin", "Utentes", new { id = userAtual });
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+
+            }
+        }
+
 
         // GET: Utentes/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -276,7 +403,7 @@ namespace DWebProjFinal.Controllers
                 .FindByIdAsync(utente.UserID);
             if (utente == null || userLogin == null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
             return View(utente);
@@ -298,7 +425,7 @@ namespace DWebProjFinal.Controllers
             if (utente != null)
             {
                 await _userManager.DeleteAsync(userLogin);
-                _context.Utentes.Remove(utente);      
+                _context.Utentes.Remove(utente);
                 await _context.SaveChangesAsync();
             }
 

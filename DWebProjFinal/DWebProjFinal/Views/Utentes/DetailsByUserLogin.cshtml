@@ -5,13 +5,14 @@
 
 <style>
     .fixed-height-img-big {
-        height: 200px;
+        max-height: 200px;
         width: auto;
+        object-fit: cover;
     }
 
     .fixed-height-img {
-        height: 200px;
-        width: auto;
+        max-height: 200px;
+        object-fit: cover;
     }
 
     .fixed-height-img-icon {
@@ -53,14 +54,14 @@
             text-decoration: none;
         }
 </style>
-<div class="row row-cols-auto mt-2">
-    <div class="col">
-        <img class="border rounded-circle fixed-height-img-big"
+<div class="row row-cols-2 mt-2">
+    <div class="col-3 ">
+        <img class="rounded-circle fixed-height-img"
              src="~/imagens/@Html.DisplayFor(model => model.Icon)"
              alt="Icon do Utilizador @Html.DisplayFor(model => model.Nome)"
              title="@Html.DisplayFor(model => model.Icon)" />
     </div>
-    <div class="col">
+    <div class="col-9">
         <div class="container mt-5">
             <h1>@Html.DisplayFor(model => model.Nome)</h1>
             <p>@Html.DisplayFor(model => model.Biografia)</p>
@@ -68,7 +69,9 @@
                 <div class="col">
                     <a asp-action="Edit" asp-route-id="@Model?.Id"><button class="btn btn-outline-warning">Editar Perfil</button></a>
                 </div>
-
+                <div class="col">
+                    <a asp-action="ChangePassword" asp-route-id="@Model?.Id"><button class="btn btn-outline-danger">Alterar Password</button></a>
+                </div>
 
             </div>
         </div>
@@ -93,16 +96,9 @@
 
                             <div class="card-body">
                                 <h4 className="card-title">
-                                    <img class="rounded-circle fixed-height-img-icon"
-                                         src="~/imagens/@pagina.Utente.Icon"
-                                         alt="Icon do autor @pagina.Utente.Icon"
-                                         title="@pagina.Utente.Icon" />
-
                                     @Html.DisplayFor(modelItem => pagina.Name)
                                 </h4>
-                                <h6 className="card-subtitle mb-2 text-muted">
-                                    @Html.DisplayFor(modelItem => pagina.Utente.Nome)
-                                </h6>
+
                             </div>
                         </div>
                     </div>
@@ -113,5 +109,5 @@
 </div>
 </br>
 <div>
-    <a asp-controller="" asp-action="Index"><button class="btn btn-outline-warning">Voltar</button></a>
+    <a asp-controller="" asp-action="Index"><button class="btn btn-outline-success">Voltar</button></a>
 </div>
