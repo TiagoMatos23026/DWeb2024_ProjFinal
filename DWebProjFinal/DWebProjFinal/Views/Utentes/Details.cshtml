@@ -54,14 +54,15 @@
             text-decoration: none;
         }
 </style>
-<div class="row row-cols-auto mt-2">
-    <div class="col">
+
+<div class="row row-cols-2 mt-2">
+    <div class="col-3">
         <img class="border rounded-circle fixed-height-img-big"
              src="~/imagens/@Html.DisplayFor(model => model.Icon)"
              alt="Icon do Utilizador @Html.DisplayFor(model => model.Nome)"
              title="@Html.DisplayFor(model => model.Icon)" />
     </div>
-    <div class="col">
+    <div class="col-9">
         <div class="container mt-5">
             <h1>@Html.DisplayFor(model => model.Nome)</h1>
             <p>@Html.DisplayFor(model => model.Biografia)</p>

@@ -20,7 +20,17 @@ function ViewPage() {
                     <p className="card-text text-center">{page.descricao}</p>
                     <hr />
                     <h2 className="card-title text-center">Tutorial</h2>
-                    <p className="card-text text-center">{page.conteudo}</p>
+                    <p className="card-text text-center">{page.conteudo}</p>                 
+                    <hr />
+                    <div className="row row-cols-2">
+                        <div className="col-2">
+                            Dificuldade: Nível {page.dificuldade}
+                        </div>
+                        <div className="col-10">
+                            Categorias: {page.ListaPaginas}
+                        </div>
+
+                    </div>
                     <div className="text-center mt-4">
                         <Link className="btn btn-warning" to="/HomePage">Voltar</Link>
                     </div>

@@ -25,6 +25,10 @@ namespace DWebProjFinal.Controllers
         /// </summary>
         private readonly ApplicationDbContext _context;
 
+        /// <summary>
+        /// Referência ao Identity para controlo de logins e logouts
+        /// </summary>
+        private readonly SignInManager<IdentityUser> _signInManager;
 
         /// <summary>
         /// Referência ao Identity para controlo do userLogin
@@ -44,16 +48,19 @@ namespace DWebProjFinal.Controllers
         /// <param name="webHostEnvironment"></param>
         public UtentesController(
             UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager,
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment)
         {
+            _signInManager = signInManager;
             _context = context;
             _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;
         }
 
         /// <summary>
-        /// Método GET para Utentes
+        /// Método para ir buscar a lista de Utentes
+        /// Não está a ser utilizado, retorna NotFound
         /// </summary>
         /// <returns></returns>
         [AllowAnonymous]
@@ -64,8 +71,7 @@ namespace DWebProjFinal.Controllers
         }
 
         /// <summary>
-        /// Método GET para um Utente específico
-        /// Retorna os dados do Utente cujo id foi introduzido
+        /// Método para ir buscar um Utente
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -88,6 +94,11 @@ namespace DWebProjFinal.Controllers
             return View(utentes);
         }
 
+        /// <summary>
+        /// Método para ir buscar o Utente que está logged in
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> DetailsByUserLogin(string? id)
         {
             if (id == null)
@@ -113,7 +124,7 @@ namespace DWebProjFinal.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Método para chamar a View para Criar Utentes
         /// </summary>
         /// <returns></returns>
         public IActionResult Create()
@@ -124,7 +135,8 @@ namespace DWebProjFinal.Controllers
         // POST: Utentes/Create
         /// <summary>
         /// Método para criar um novo Utente
-        /// Cria um objeto Utente
+        /// Este método apenas é chamado dentro do método Register, 
+        /// pois apenas são criados novos Utentes quando é registado um novo utilizador
         /// </summary>
         /// <param name="utente"></param>
         /// <param name="IconFile"></param>
@@ -253,7 +265,7 @@ namespace DWebProjFinal.Controllers
                 // há ficheiro?
                 if (IconFile == null)
                 {
-
+                    utente.Icon = "defaultIcon.png";
                 }
                 else
                 {
@@ -265,7 +277,7 @@ namespace DWebProjFinal.Controllers
                     {
                         // não
                         // vamos usar uma imagem pre-definida
-                        utente.Icon = "defaultThumbnail.png";
+                        utente.Icon = "defaultIcon.png";
                     }
                     else
                     {
@@ -332,6 +344,12 @@ namespace DWebProjFinal.Controllers
             return View(utente);
         }
 
+        /// <summary>
+        /// Método para saber se o Utente que pediu a mudança da password
+        /// existe e é o dono do perfil
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> ChangePassword(int? id)
         {
             if (id == null)
@@ -360,6 +378,13 @@ namespace DWebProjFinal.Controllers
             return View(utente);
         }
 
+        /// <summary>
+        /// Método para Editar a password
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="currentPassword"></param>
+        /// <param name="newPassword"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> ChangePassword(int id, string currentPassword, string newPassword)
         {
@@ -388,7 +413,11 @@ namespace DWebProjFinal.Controllers
         }
 
 
-        // GET: Utentes/Delete/5
+        /// <summary>
+        /// Método para apagar o Utente
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -396,12 +425,15 @@ namespace DWebProjFinal.Controllers
                 return NotFound();
             }
 
-
             var utente = await _context.Utentes
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             var userLogin = await _userManager
                 .FindByIdAsync(utente.UserID);
-            if (utente == null || userLogin == null)
+
+            var userAtual = _userManager.GetUserId(User);
+
+            if (utente == null || userLogin == null || userAtual != utente.UserID)
             {
                 return BadRequest();
             }
@@ -419,17 +451,28 @@ namespace DWebProjFinal.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var utente = await _context.Utentes.FindAsync(id);
-            var userLogin = await _userManager.FindByIdAsync(utente.UserID);
+            var utente = await _context.Utentes
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            var userLogin = await _userManager
+                .FindByIdAsync(utente.UserID);
+
+            var userAtual = _userManager.GetUserId(User);
+
+            if (utente == null || userLogin == null || userAtual != utente.UserID)
+            {
+                return BadRequest();
+            }
 
             if (utente != null)
             {
+                await _signInManager.SignOutAsync();
                 await _userManager.DeleteAsync(userLogin);
                 _context.Utentes.Remove(utente);
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Home");
         }
 
         private bool UtentesExists(int id)

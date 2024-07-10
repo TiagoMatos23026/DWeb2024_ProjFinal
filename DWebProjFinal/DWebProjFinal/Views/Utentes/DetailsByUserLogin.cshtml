@@ -70,7 +70,10 @@
                     <a asp-action="Edit" asp-route-id="@Model?.Id"><button class="btn btn-outline-warning">Editar Perfil</button></a>
                 </div>
                 <div class="col">
-                    <a asp-action="ChangePassword" asp-route-id="@Model?.Id"><button class="btn btn-outline-danger">Alterar Password</button></a>
+                    <a asp-action="ChangePassword" asp-route-id="@Model?.Id"><button class="btn btn-outline-success">Alterar Password</button></a>
+                </div>
+                <div class="col">
+                    <a asp-action="Delete" asp-route-id="@Model.Id"><button class="btn btn-outline-danger">Apagar Conta</button></a>
                 </div>
 
             </div>

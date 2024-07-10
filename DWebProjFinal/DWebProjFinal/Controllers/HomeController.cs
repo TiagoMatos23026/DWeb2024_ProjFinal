@@ -25,6 +25,12 @@ namespace DWebProjFinal.Controllers
             _userManager = userManager;
         }
 
+        /// <summary>
+        /// Método para ir buscar as Páginas
+        /// e os seus respetivos Utentes
+        /// e mostrá-los na Homepage
+        /// </summary>
+        /// <returns></returns>
         public async Task<IActionResult> Index()
         {
             var paginas = _context.Paginas.
@@ -37,6 +43,10 @@ namespace DWebProjFinal.Controllers
             return View(paginas);
         }
 
+        /// <summary>
+        /// Método para ir buscar as declarações de privacidade
+        /// </summary>
+        /// <returns></returns>
         public IActionResult Privacy()
         {
             return View();

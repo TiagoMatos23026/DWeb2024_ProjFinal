@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -8,22 +7,42 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DWebProjFinal.Data;
 using DWebProjFinal.Models;
-using Humanizer.Localisation;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text.Encodings.Web;
+using System.Text;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
-namespace DWebProjFinal.Controllers.API
+namespace DWebProjFinal.Controllers.API.Auth
 {
     [Route("api/[controller]")]
     [ApiController]
     public class UtentesAPIController : ControllerBase
     {
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IUserStore<IdentityUser> _userStore;
+        private readonly ILogger<UtentesAPIController> _logger;
+        private readonly IEmailSender _emailSender;
+        private readonly UtentesController _utenteController;
         private readonly ApplicationDbContext _context;
-        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public UtentesAPIController(ApplicationDbContext context, IWebHostEnvironment environment)
+        public UtentesAPIController(
+            UtentesController utenteController,
+            UserManager<IdentityUser> userManager,
+            IUserStore<IdentityUser> userStore,
+            SignInManager<IdentityUser> signInManager,
+            ILogger<UtentesAPIController> logger,
+            IEmailSender emailSender,
+            ApplicationDbContext context)
         {
+            _userManager = userManager;
+            _userStore = userStore;
+            _signInManager = signInManager;
+            _logger = logger;
+            _emailSender = emailSender;
             _context = context;
-            _webHostEnvironment = environment;
+            _utenteController = utenteController;
         }
 
         // GET: api/UtentesAPI
@@ -37,7 +56,9 @@ namespace DWebProjFinal.Controllers.API
         [HttpGet("{id}")]
         public async Task<ActionResult<Utentes>> GetUtentes(int id)
         {
-            var utentes = await _context.Utentes.FindAsync(id);
+            var utentes = await _context.Utentes
+                .Include(u => u.ListaPaginas)
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (utentes == null)
             {
@@ -50,17 +71,11 @@ namespace DWebProjFinal.Controllers.API
         // PUT: api/UtentesAPI/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUtentes(int id, [FromForm] Utentes utentes, IFormFile? iconFile)
+        public async Task<IActionResult> PutUtentes(int id, Utentes utentes)
         {
             if (id != utentes.Id)
             {
                 return BadRequest();
-            }
-
-            if (iconFile != null)
-            {
-                string uniqueFileName = await SaveImage(iconFile);
-                utentes.Icon = uniqueFileName;
             }
 
             _context.Entry(utentes).State = EntityState.Modified;
@@ -84,71 +99,91 @@ namespace DWebProjFinal.Controllers.API
             return NoContent();
         }
 
+
+
+        public async Task<ActionResult<Utentes>> Register(string Email, string Password, string ConfirmPassword, Utentes utentes, IFormFile IconFile)
+        {
+            if (ModelState.IsValid) //validacao
+            {
+
+                var userLogin = _userManager.CreateAsync();
+
+                await _userStore.SetUserNameAsync(userLogin, Input.Email, CancellationToken.None);
+                await _emailStore.SetEmailAsync(userLogin, Input.Email, CancellationToken.None);
+
+                var result = await _userManager.CreateAsync(userLogin, Input.Password);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("Utilizador criado com sucesso!");
+
+                    try
+                    {
+                        Input.utente.UserID = userLogin.Id;
+                        await _utenteController.Create(Input.utente, Input.IconFile); //chamar UtentesContoller para criação de um objeto Utente
+                    }
+                    catch (Exception ex)
+                    {
+                        await _userManager.DeleteAsync(userLogin);
+                        await _context.SaveChangesAsync();
+                        Url.Content("~/");
+                    }
+
+                    var userId = await _userManager.GetUserIdAsync(userLogin);
+
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(userLogin);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    var callbackUrl = Url.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                        protocol: Request.Scheme);
+
+                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                        $"Por favor, confirme o seu email <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicando aqui</a>.");
+
+                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                    {
+                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                    }
+                    else
+                    {
+                        await _signInManager.SignInAsync(userLogin, isPersistent: false);
+                        return LocalRedirect(returnUrl);
+                    }
+                }
+
+
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            return Page();
+        }
+
+
+
+
+
+
         // POST: api/UtentesAPI
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Utentes>> PostUtentes([FromForm] Utentes utente, IFormFile? iconFile)
+        public async Task<ActionResult<Utentes>> PostUtentes(string Email, string Password, string ConfirmPassword, Utentes utentes, IFormFile IconFile)
         {
-            string nomeImagem = "";
-            bool haImagem = false;
 
 
+            _context.Utentes.Add(utentes);
+            await _context.SaveChangesAsync();
 
-            if (iconFile == null)   //se não houver ficheiro
-            {
-                ModelState.AddModelError("", "Nenhuma imagem foi fornecida");   //mensagem de erro
-            }
-            else   //se há ficheiro
-            {
-                if (!(iconFile.ContentType == "image/png" ||
-                    iconFile.ContentType == "image/jpeg" ||
-                    iconFile.ContentType == "image/jpg"))   //se o ficheiro não for do tipo imagem
-                {
-                    utente.Icon = "defaultIcon.png";   //usa-se uma imagem pre definida
-                }
-                else   //se for imagem
-                {
-                    haImagem = true;
-                    Guid g = Guid.NewGuid();
-                    nomeImagem = g.ToString();
-                    string extensaoImagem = Path.GetExtension(iconFile.FileName).ToLowerInvariant();
-                    nomeImagem += extensaoImagem;
-                    utente.Icon = nomeImagem;   //guarda o nome da imagem na BD
-                }
-            }
-
-            _context.Add(utente);   //adiciona os dados recebidos ao objeto
-            await _context.SaveChangesAsync();   //faz o commit
-
-
-            //a imagem ao chegar aqui está pronta a ser uploaded
-            if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
-            {
-                //encolher a imagem a um tamanho apropriado
-                //procurar package no nuget que trate disso
-
-                //determinar o local de armazenamento da imagem dentro do disco rígido
-                string localizacaoImagem = _webHostEnvironment.WebRootPath;
-                localizacaoImagem = Path.Combine(localizacaoImagem, "imagens");
-
-                //será que o local existe?
-                if (!Directory.Exists(localizacaoImagem))   //se não houver local para guardar a imagem...
-                {
-                    Directory.CreateDirectory(localizacaoImagem);   //criar um novo local
-                }
-
-                //existindo local para guardar a imagem, informar o servidor do seu nome
-                //e de onde vai ser guardada
-                string nomeFicheiro = Path.Combine(localizacaoImagem, nomeImagem);
-
-                //guardar a imagem no disco rígido
-                using var stream = new FileStream(nomeFicheiro, FileMode.Create);
-                await iconFile.CopyToAsync(stream);
-
-            }
-
-            return CreatedAtAction("GetUtentes", new { id = utente.Id }, utente);
+            return CreatedAtAction("GetUtentes", new { id = utentes.Id }, utentes);
         }
+
+
 
         // DELETE: api/UtentesAPI/5
         [HttpDelete("{id}")]
@@ -169,20 +204,6 @@ namespace DWebProjFinal.Controllers.API
         private bool UtentesExists(int id)
         {
             return _context.Utentes.Any(e => e.Id == id);
-        }
-
-        private async Task<string> SaveImage(IFormFile imageFile)
-        {
-            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "imagens"); //folder onde as imagens ficam guardadas
-            string uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName; //nomes das imagens uploaded para o folder
-            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                await imageFile.CopyToAsync(fileStream);
-            }
-
-            return uniqueFileName;
         }
     }
 }

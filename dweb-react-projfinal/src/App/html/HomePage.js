@@ -18,22 +18,16 @@ function FrontPage() {
     };
 
     const fetchData = async () => {
-        try {
-            const [pagesResponse, utentesResponse] = await Promise.all([getPagesAPI(), getUtentesAPI()]);
-            const pagesData = await pagesResponse.json();
-            const utentesData = await utentesResponse.json();
-            setPagesList(shufflePages(pagesData));
-            setUtentesList(utentesData);
-        } catch (error) {
-            console.error('Erro', error);
-        }
-    };
-
-    
+        let utentesData = await getUtentesAPI();
+        let pagesData = await getPagesAPI();
+        setUtentesList(shufflePages(utentesData));
+        setPagesList(shufflePages(pagesData));
+    }
 
     useEffect(() => {
         fetchData();
     }, []);
+
 
     const handleCardClick = (page) => {
         const autor = utentesList.find(utente => utente.id === page.utenteFK);

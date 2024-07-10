@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DWebProjFinal.Data;
 using DWebProjFinal.Models;
-using Humanizer.Localisation;
-using Microsoft.AspNetCore.Hosting;
 
 namespace DWebProjFinal.Controllers.API
 {
@@ -17,12 +15,10 @@ namespace DWebProjFinal.Controllers.API
     public class PaginasAPIController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public PaginasAPIController(ApplicationDbContext context, IWebHostEnvironment environment)
+        public PaginasAPIController(ApplicationDbContext context)
         {
             _context = context;
-            _webHostEnvironment = environment;
         }
 
         // GET: api/PaginasAPI
@@ -80,69 +76,12 @@ namespace DWebProjFinal.Controllers.API
         // POST: api/PaginasAPI
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Paginas>> PostPaginas([FromForm] Paginas pagina, IFormFile? iconFile)
+        public async Task<ActionResult<Paginas>> PostPaginas(Paginas paginas)
         {
-            string nomeImagem = "";
-            bool haImagem = false;
+            _context.Paginas.Add(paginas);
+            await _context.SaveChangesAsync();
 
-
-
-            if (iconFile == null)   //se não houver ficheiro
-            {
-                ModelState.AddModelError("", "Nenhuma imagem foi fornecida");   //mensagem de erro
-            }
-            else   //se há ficheiro
-            {
-                if (!(iconFile.ContentType == "image/png" ||
-                    iconFile.ContentType == "image/jpeg" ||
-                    iconFile.ContentType == "image/jpg"))   //se o ficheiro não for do tipo imagem
-                {
-                    pagina.Thumbnail = "defaultIcon.png";   //usa-se uma imagem pre definida
-                }
-                else   //se for imagem
-                {
-                    haImagem = true;
-                    Guid g = Guid.NewGuid();
-                    nomeImagem = g.ToString();
-                    string extensaoImagem = Path.GetExtension(iconFile.FileName).ToLowerInvariant();
-                    nomeImagem += extensaoImagem;
-                    pagina.Thumbnail = nomeImagem;   //guarda o nome da imagem na BD
-                }
-            }
-
-            _context.Add(pagina);   //adiciona os dados recebidos ao objeto
-            await _context.SaveChangesAsync();   //faz o commit
-
-
-            //a imagem ao chegar aqui está pronta a ser uploaded
-            if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
-            {
-                //encolher a imagem a um tamanho apropriado
-                //procurar package no nuget que trate disso
-
-                //determinar o local de armazenamento da imagem dentro do disco rígido
-                string localizacaoImagem = _webHostEnvironment.WebRootPath;
-                localizacaoImagem = Path.Combine(localizacaoImagem, "imagens");
-
-                //será que o local existe?
-                if (!Directory.Exists(localizacaoImagem))   //se não houver local para guardar a imagem...
-                {
-                    Directory.CreateDirectory(localizacaoImagem);   //criar um novo local
-                }
-
-                //existindo local para guardar a imagem, informar o servidor do seu nome
-                //e de onde vai ser guardada
-                string nomeFicheiro = Path.Combine(localizacaoImagem, nomeImagem);
-
-                //guardar a imagem no disco rígido
-                using var stream = new FileStream(nomeFicheiro, FileMode.Create);
-                await iconFile.CopyToAsync(stream);
-
-            }
-
-
-
-            return CreatedAtAction("GetPaginas", new { id = pagina.Id }, pagina);
+            return CreatedAtAction("GetPaginas", new { id = paginas.Id }, paginas);
         }
 
         // DELETE: api/PaginasAPI/5

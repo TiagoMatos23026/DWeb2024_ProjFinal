@@ -16,7 +16,7 @@ const CreatePage = () => {
         thumbnail: '',
         utenteFK: '',
     });
-
+    
     const fetchData = async () => {
         try {
             const [pagesResponse, utentesResponse] = await Promise.all([getPagesAPI(), getUtentesAPI()]);

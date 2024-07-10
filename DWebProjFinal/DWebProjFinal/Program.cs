@@ -2,6 +2,7 @@ using DWebProjFinal.Controllers;
 using DWebProjFinal.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,8 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 builder.Services.AddTransient<UtentesController>();
 builder.Services.AddTransient<CategoriasController>();
 builder.Services.AddTransient<PaginasController>();
+builder.Services.AddTransient<Register>();
+builder.Services.AddTransient<Login>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

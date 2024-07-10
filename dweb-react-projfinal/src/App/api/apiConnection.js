@@ -7,26 +7,34 @@
     return users;
 }*/
 
-export function getUtentesAPI(){
-    return fetch("http://localhost:5101/api/UtentesAPI")
+export const getUtentesAPI = async () => {
+    const res = await fetch("https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/UtentesAPI")
+    if (!res.ok) {
+        throw new Error('Houve um problema na rede');
+    }
+    return res.json();
 }
 
 export const getPagesAPI = async () => {
-    return fetch("http://localhost:5101/api/PaginasAPI")
+    const res = await fetch("https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/PaginasAPI")
+    if (!res.ok) {
+        throw new Error('Houve um problema na rede');
+    }
+    return res.json();
 };
 
 export const getPagesDetailsAPI = async () => {
-    const response = await fetch("http://localhost:5101/api/PaginasAPI");
-    if (!response.ok) {
-        throw new Error('Network response was not ok');
+    const res = await fetch("https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/PaginasAPI");
+    if (!res.ok) {
+        throw new Error('Houve um problema na rede');
     }
-    return response.json();
+    return res.json();
 };
 
 export const getUtentesDetailsAPI = async (email) => {
-    const response = await fetch(`http://localhost:5101/api/UtentesAPI?email=${encodeURIComponent(email)}`);
-    if (!response.ok) {
-        throw new Error('Network response was not ok');
+    const res = await fetch(`https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/UtentesAPI?email=${encodeURIComponent(email)}`);
+    if (!res.ok) {
+        throw new Error('Houve um problema na rede');
     }
-    return response.json();
+    return res.json();
 };

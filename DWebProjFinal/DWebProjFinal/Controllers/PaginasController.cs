@@ -39,7 +39,11 @@ namespace DWebProjFinal.Controllers
             _context = context;
         }
 
-        // GET: Paginas
+        /// <summary>
+        /// Lista de Páginas
+        /// (Não está a ser utilizado, retorna NotFound)
+        /// </summary>
+        /// <returns></returns>
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
@@ -52,7 +56,6 @@ namespace DWebProjFinal.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        // GET: Paginas/Details/5
         [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
@@ -74,16 +77,23 @@ namespace DWebProjFinal.Controllers
             return View(paginas);
         }
 
-        // GET: Paginas/Create
+        /// <summary>
+        /// Método para ir buscar a View para Criar Páginas
+        /// </summary>
+        /// <returns></returns>
         public IActionResult Create()
         {
             ViewData["UtenteFK"] = new SelectList(_context.Utentes.OrderBy(c => c.Nome), "Id", "Nome");
             return View();
         }
 
-        // POST: Paginas/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// <summary>
+        /// Método para Criar Páginas
+        /// </summary>
+        /// <param name="pagina"></param>
+        /// <param name="ImgThumbnail"></param>
+        /// <param name="ListaCategorias"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Descricao,Conteudo,Dificuldade")] Paginas pagina, IFormFile ImgThumbnail, string[] ListaCategorias)
@@ -203,7 +213,11 @@ namespace DWebProjFinal.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // GET: Paginas/Edit/5
+        /// <summary>
+        /// Método para ir buscar a Página a ser Editada
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -226,9 +240,13 @@ namespace DWebProjFinal.Controllers
             return View(pagina);
         }
 
-        // POST: Paginas/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// <summary>
+        /// Método para Editar Páginas
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="pagina"></param>
+        /// <param name="ImgThumbnail"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Descricao,Dificuldade,Conteudo,Thumbnail,UtenteFK")] Paginas pagina, IFormFile? ImgThumbnail)
@@ -340,7 +358,11 @@ namespace DWebProjFinal.Controllers
             return View();
         }
 
-        // GET: Paginas/Delete/5
+        /// <summary>
+        /// Método para ir buscar a Página a ser Apagada
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -367,7 +389,11 @@ namespace DWebProjFinal.Controllers
             return View(paginas);
         }
 
-        // POST: Paginas/Delete/5
+        /// <summary>
+        /// Método para Apagar Páginas
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -392,6 +418,11 @@ namespace DWebProjFinal.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        /// <summary>
+        /// Método para saber se a Página existe
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         private bool PaginasExists(int id)
         {
             return _context.Paginas.Any(e => e.Id == id);

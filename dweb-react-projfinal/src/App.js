@@ -12,12 +12,12 @@ import {
     BrowserRouter as Router,
     Routes,
     Route,
+    redirect
   } from 'react-router-dom';
 import RegisterPage from './App/html/RegisterPage';
 import ProfilePage from './App/html/ProfilePage';
 
 export const AuthContext = createContext({ });
-
 export const useAuth = () => useContext(AuthContext);
 
 function App() {
@@ -28,14 +28,14 @@ function App() {
         <AuthContext.Provider value={{user, setUser}} >
             <Router>
                 <Routes>
-                    <Route className="container" path="/" element={<Layout />}>
-                        <Route className="container" path="HomePage" element={<HomePage />} />
-                        <Route className="container" path="ViewPage" element={<ViewPage />} />
-                        <Route className="container" path="SearchPage" element={<SearchPage />} />
-                        <Route className="container" path="LoginPage" element={<LoginPage />} />
-                        <Route className="container" path="RegisterPage" element={<RegisterPage />} />
-                        <Route className="container" path="ProfilePage" element={<ProfilePage />} />
-                        <Route className="container" path="CreatePage" element={<CreatePage />} />
+                    <Route className="container" path="/" element={<Layout/>}>
+                        <Route className="container" path="/HomePage" element={<HomePage />} />
+                        <Route className="container" path="/ViewPage" element={<ViewPage />} />
+                        <Route className="container" path="/SearchPage" element={<SearchPage />} />
+                        <Route className="container" path="/LoginPage" element={<LoginPage />} />
+                        <Route className="container" path="/RegisterPage" element={<RegisterPage />} />
+                        <Route className="container" path="/ProfilePage" element={<ProfilePage />} />
+                        <Route className="container" path="/CreatePage" element={<CreatePage />} />
                     </Route>
                 </Routes>
             </Router>

@@ -4,49 +4,82 @@
     ViewData["Title"] = "Delete";
 }
 
-<h1>Apagar</h1>
+<style>
+    .fixed-height-img-big {
+        max-height: 200px;
+        object-fit: cover;
+    }
 
-<h3>Tem a certeza que pretende apagar este Utilizador?</h3>
+    .fixed-height-img {
+        max-height: 200px;
+        object-fit: cover;
+    }
+
+    .fixed-height-img-icon {
+        height: 40px;
+        width: auto;
+    }
+
+    .card {
+        background-color: white;
+        transition: 0.3s;
+        color: black;
+        text-decoration: none;
+    }
+
+        .card:hover {
+            background-color: #ffc107;
+            color: white;
+        }
+
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+        a:link {
+            text-decoration: none;
+        }
+
+        a:visited {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: none;
+        }
+
+        a:active {
+            text-decoration: none;
+        }
+</style>
+
+<h3>Tem a certeza que pretende apagar esta conta?</h3>
 <div>
-    <h4>Utilizadores</h4>
     <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nome)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nome)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Icon)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Icon)
-        </dd>
+    <div class="row row-cols-2 mt-2">
+        <div class="col-3">
+            <img class="border rounded-circle fixed-height-img-big"
+                 src="~/imagens/@Html.DisplayFor(model => model.Icon)"
+                 alt="Icon do Utilizador @Html.DisplayFor(model => model.Nome)"
+                 title="@Html.DisplayFor(model => model.Icon)" />
+        </div>
+        <div class="col-9">
+            <div class="container mt-5">
+                <h1>@Html.DisplayFor(model => model.Nome)</h1>
+                <p>@Html.DisplayFor(model => model.Biografia)</p>
+                <div class="row row-cols-auto mt-2">
+                </div>
+            </div>
 
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Telemovel)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Telemovel)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.dataNasc)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.dataNasc)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Biografia)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Biografia)
-        </dd>
-    </dl>
-    
+        </div>
+    </div>
+    <hr/>
+
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Voltar</a>
+        <input type="submit" value="Delete" class="btn btn-outline-danger" /> 
+        <a class="btn btn-outline-success" asp-action="Index">Voltar</a>
     </form>
 </div>
