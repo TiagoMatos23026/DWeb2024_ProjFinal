@@ -17,6 +17,7 @@ using DWebProjFinal.Models;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -37,9 +38,10 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
         private readonly IEmailSender _emailSender;
         private readonly UtentesController _utenteController;
         private readonly ApplicationDbContext _context;
+        private readonly UtentesController _utentesController;
 
         public RegisterModel(
-          UtentesController utenteController,
+          UtentesController utentesController,
           UserManager<IdentityUser> userManager,
           IUserStore<IdentityUser> userStore,
           SignInManager<IdentityUser> signInManager,
@@ -55,7 +57,7 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
             _logger = logger;
             _emailSender = emailSender;
             _context = context;
-            _utenteController = utenteController;
+            _utentesController = utentesController;
         }
 
         /// <summary>
@@ -193,8 +195,6 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
                         return LocalRedirect(returnUrl);
                     }
                 }
-
-
 
                 foreach (var error in result.Errors)
                 {

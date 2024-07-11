@@ -3,14 +3,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
-    nome: '',
-    icon: '',
-    email: '',
-    telemovel: '',
-    password: '',
-    confirmPassword: '',
+    Nome: '',
+    Telemovel: '',
     dataNasc: '',
-    biografia: ''
+    Biografia: '',
+    Email: '',
+    Password: '',
+    ConfirmPassword: '',
+    IconFile: ''
   });
 
   const handleChange = (e) => {
@@ -25,18 +25,15 @@ const RegisterPage = () => {
     e.preventDefault();
 
     const submitData = new FormData();
-    submitData.append('nome', formData.nome);
-    submitData.append('icon', formData.icon);
-    submitData.append('email', formData.email);
-    submitData.append('telemovel', formData.telemovel);
-    submitData.append('password', formData.password);
+
+    submitData.append('Nome', formData.nome);
+    submitData.append('Telemovel', formData.telemovel);
     submitData.append('dataNasc', formData.dataNasc);
     submitData.append('biografia', formData.biografia);
-
-    const loginData = {
-      email: formData.email,
-      password: formData.password
-    };
+    submitData.append('Email', formData.email);
+    submitData.append('Password', formData.password);
+    submitData.append('ConfirmPassword', formData.password);
+    submitData.append('IconFile', formData.icon);
 
     try {
       const response = await fetch('http://localhost:5101/api/UtentesAPI', {
@@ -46,28 +43,6 @@ const RegisterPage = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-
-        try {
-          const response = await fetch('http://localhost:5101/api/LoginUtilizadorAPI', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(loginData)
-          });
-
-          if (response.ok) {
-            const responseData = await response.json();
-            console.log('Response:', responseData);
-            alert('Conta Criada com Sucesso!')
-            window.location.href="/HomePage"
-          } else {
-            console.error('Error submitting form:', response.statusText);
-          }
-        } catch (error) {
-          console.error('Error submitting form:', error);
-        }
-
         console.log('Response:', responseData);
       } else {
         console.error('Error submitting form:', response.statusText);

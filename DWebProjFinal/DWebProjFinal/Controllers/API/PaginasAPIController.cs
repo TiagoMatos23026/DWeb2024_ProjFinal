@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DWebProjFinal.Data;
 using DWebProjFinal.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DWebProjFinal.Controllers.API
 {
@@ -76,6 +77,7 @@ namespace DWebProjFinal.Controllers.API
         // POST: api/PaginasAPI
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<Paginas>> PostPaginas(Paginas paginas)
         {
             _context.Paginas.Add(paginas);

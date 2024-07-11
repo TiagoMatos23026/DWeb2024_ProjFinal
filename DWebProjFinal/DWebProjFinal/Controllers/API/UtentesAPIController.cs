@@ -12,8 +12,13 @@ using Microsoft.AspNetCore.WebUtilities;
 using System.Text.Encodings.Web;
 using System.Text;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using DWebProjFinal.Areas.Identity.Pages.Account;
+using DWebProjFinal.Data.Migrations;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 
-namespace DWebProjFinal.Controllers.API.Auth
+namespace DWebProjFinal.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -21,30 +26,64 @@ namespace DWebProjFinal.Controllers.API.Auth
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly IUserStore<IdentityUser> _userStore;
-        private readonly ILogger<UtentesAPIController> _logger;
-        private readonly IEmailSender _emailSender;
-        private readonly UtentesController _utenteController;
         private readonly ApplicationDbContext _context;
+        private readonly UtentesController _utentesController;
 
         public UtentesAPIController(
-            UtentesController utenteController,
-            UserManager<IdentityUser> userManager,
-            IUserStore<IdentityUser> userStore,
-            SignInManager<IdentityUser> signInManager,
-            ILogger<UtentesAPIController> logger,
-            IEmailSender emailSender,
-            ApplicationDbContext context)
+          UtentesController utentesController,
+          UserManager<IdentityUser> userManager,
+          SignInManager<IdentityUser> signInManager,
+          ApplicationDbContext context)
         {
+
             _userManager = userManager;
-            _userStore = userStore;
             _signInManager = signInManager;
-            _logger = logger;
-            _emailSender = emailSender;
             _context = context;
-            _utenteController = utenteController;
+            _utentesController = utentesController;
         }
 
+        /// <summary>
+        /// Modelo para Registo
+        /// </summary>
+        public class RegisterModel
+        {
+            public Utentes utente { get; set; }
+
+            [Required]
+            [EmailAddress]
+            public string Email { get; set; }
+
+            [Required]
+            [DataType(DataType.Password)]
+            public string Password { get; set; }
+
+            [DataType(DataType.Password)]
+            [Display(Name = "Confirm password")]
+            [Compare("Password", ErrorMessage = "As passwords não coincidem.")]
+            public string ConfirmPassword { get; set; }
+        }
+
+        /// <summary>
+        /// Modelo para Login
+        /// </summary>
+        public class LoginModel
+        {
+            [Required]
+            [EmailAddress]
+            public string Email { get; set; }
+
+            [Required]
+            [DataType(DataType.Password)]
+            public string Password { get; set; }
+
+            [Display(Name = "Remember me?")]
+            public bool RememberMe { get; set; }
+        }
+
+        /// <summary>
+        /// Método para Buscar a lista de Utentes
+        /// </summary>
+        /// <returns></returns>
         // GET: api/UtentesAPI
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Utentes>>> GetUtentes()
@@ -52,13 +91,16 @@ namespace DWebProjFinal.Controllers.API.Auth
             return await _context.Utentes.ToListAsync();
         }
 
+        /// <summary>
+        /// Método para Buscar um Utente em específico
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET: api/UtentesAPI/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Utentes>> GetUtentes(int id)
         {
-            var utentes = await _context.Utentes
-                .Include(u => u.ListaPaginas)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var utentes = await _context.Utentes.FindAsync(id);
 
             if (utentes == null)
             {
@@ -68,6 +110,12 @@ namespace DWebProjFinal.Controllers.API.Auth
             return utentes;
         }
 
+        /// <summary>
+        /// Método para Editar Utentes
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="utentes"></param>
+        /// <returns></returns>
         // PUT: api/UtentesAPI/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -99,92 +147,103 @@ namespace DWebProjFinal.Controllers.API.Auth
             return NoContent();
         }
 
-
-
-        public async Task<ActionResult<Utentes>> Register(string Email, string Password, string ConfirmPassword, Utentes utentes, IFormFile IconFile)
+        /// <summary>
+        /// Método para criar um novo Utente
+        /// </summary>
+        /// <param name="registo"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> PostUtentes([FromForm] RegisterModel registo)
         {
-            if (ModelState.IsValid) //validacao
+            if (ModelState.IsValid)
             {
+                var result = await Register(registo.Email, registo.Password, registo.ConfirmPassword);
 
-                var userLogin = _userManager.CreateAsync();
-
-                await _userStore.SetUserNameAsync(userLogin, Input.Email, CancellationToken.None);
-                await _emailStore.SetEmailAsync(userLogin, Input.Email, CancellationToken.None);
-
-                var result = await _userManager.CreateAsync(userLogin, Input.Password);
-
-                if (result.Succeeded)
+                if (result is OkResult)
                 {
-                    _logger.LogInformation("Utilizador criado com sucesso!");
+                    _context.Add(registo.utente);
+                    await _context.SaveChangesAsync();
 
-                    try
+                    // Automatically confirm the email
+                    var user = await _userManager.FindByEmailAsync(registo.Email);
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var confirmResult = await _userManager.ConfirmEmailAsync(user, token);
+
+                    if (confirmResult.Succeeded)
                     {
-                        Input.utente.UserID = userLogin.Id;
-                        await _utenteController.Create(Input.utente, Input.IconFile); //chamar UtentesContoller para criação de um objeto Utente
-                    }
-                    catch (Exception ex)
-                    {
-                        await _userManager.DeleteAsync(userLogin);
-                        await _context.SaveChangesAsync();
-                        Url.Content("~/");
-                    }
-
-                    var userId = await _userManager.GetUserIdAsync(userLogin);
-
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(userLogin);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);
-
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Por favor, confirme o seu email <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicando aqui</a>.");
-
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                        return Ok();
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(userLogin, isPersistent: false);
-                        return LocalRedirect(returnUrl);
+                        return BadRequest("Error ao confirmar o email");
                     }
                 }
+                else
+                {
+                    return result;
+                }
+            }
 
+            return BadRequest(ModelState);
+        }
 
-
+        /// <summary>
+        /// Método para Registar um novo Login
+        /// É chamado ao ser criado um novo Utente
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> Register(string Email, string Password, string ConfirmPassword)
+        {
+            if (ModelState.IsValid && Password == ConfirmPassword)
+            {
+                var user = new IdentityUser { UserName = Email, Email = Email };
+                var result = await _userManager.CreateAsync(user, Password);
+                if (result.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return Ok();
+                }
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
-
-            // If we got this far, something failed, redisplay form
-            return Page();
+            return BadRequest(ModelState);
         }
 
-
-
-
-
-
-        // POST: api/UtentesAPI
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Utentes>> PostUtentes(string Email, string Password, string ConfirmPassword, Utentes utentes, IFormFile IconFile)
+        /// <summary>
+        /// Método para efetuar Login com um Utente
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromForm] LoginModel model)
         {
-
-
-            _context.Utentes.Add(utentes);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetUtentes", new { id = utentes.Id }, utentes);
+            if (ModelState.IsValid)
+            {
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+                if (result.Succeeded)
+                {
+                    return Ok();
+                }
+                if (result.IsLockedOut)
+                {
+                    return BadRequest("User account locked out.");
+                }
+                else
+                {
+                    return BadRequest("Invalid login attempt.");
+                }
+            }
+            return BadRequest(ModelState);
         }
 
-
-
+        /// <summary>
+        /// Método para Apagar Utente
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // DELETE: api/UtentesAPI/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUtentes(int id)
