@@ -43,6 +43,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 builder.Services.AddTransient<UtentesController>();
 builder.Services.AddTransient<CategoriasController>();
 builder.Services.AddTransient<PaginasController>();
+builder.Services.AddTransient<TokenGenerateController>();
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddAuthorization();

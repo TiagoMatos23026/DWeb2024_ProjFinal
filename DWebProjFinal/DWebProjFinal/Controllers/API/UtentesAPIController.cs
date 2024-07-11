@@ -17,6 +17,7 @@ using DWebProjFinal.Data.Migrations;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
+using System.Runtime.CompilerServices;
 
 namespace DWebProjFinal.Controllers.API
 {
@@ -28,14 +29,17 @@ namespace DWebProjFinal.Controllers.API
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ApplicationDbContext _context;
         private readonly UtentesController _utentesController;
+        private readonly TokenGenerateController _tokenGenerateController;
 
         public UtentesAPIController(
           UtentesController utentesController,
           UserManager<IdentityUser> userManager,
           SignInManager<IdentityUser> signInManager,
-          ApplicationDbContext context)
-        {
+          ApplicationDbContext context,
+          TokenGenerateController tokenGenerateController)
 
+        {
+            _tokenGenerateController = tokenGenerateController;
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
@@ -223,9 +227,12 @@ namespace DWebProjFinal.Controllers.API
             if (ModelState.IsValid)
             {
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+
+                var token = _tokenGenerateController.GetToken(model.Email, model.Password);
+
                 if (result.Succeeded)
                 {
-                    return Ok();
+                    return Ok(token);
                 }
                 if (result.IsLockedOut)
                 {
