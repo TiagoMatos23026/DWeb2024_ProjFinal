@@ -46,6 +46,13 @@ namespace DWebProjFinal.Controllers.API
             _utentesController = utentesController;
         }
 
+        public class APIModel
+        {
+            public Utentes utente { get; set; }
+
+            public string token { get; set; }
+
+        }
         /// <summary>
         /// Modelo para Registo
         /// </summary>
@@ -102,16 +109,16 @@ namespace DWebProjFinal.Controllers.API
         /// <returns></returns>
         // GET: api/UtentesAPI/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Utentes>> GetUtentes(int id)
+        public async Task<ActionResult<Utentes>> GetUtente(int id)
         {
-            var utentes = await _context.Utentes.FindAsync(id);
+            var utente = await _context.Utentes.FindAsync(id);
 
-            if (utentes == null)
+            if (utente == null)
             {
                 return NotFound();
             }
 
-            return utentes;
+            return utente;
         }
 
         /// <summary>
@@ -226,13 +233,23 @@ namespace DWebProjFinal.Controllers.API
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
 
-                var token = _tokenGenerateController.GetToken(model.Email, model.Password);
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
 
                 if (result.Succeeded)
                 {
-                    return Ok(token);
+                    var userLogin = await _userManager.FindByNameAsync(model.Email);
+                    var userID = _userManager.GetUserId(User);
+
+                    var utente = _context.Utentes.FirstOrDefault(m => m.UserID == userID);
+
+                    APIModel apiModel = new APIModel();
+                    apiModel.utente = utente;
+
+                    var token = _tokenGenerateController.GetToken(model.Email, model.Password);
+                    apiModel.token = token;
+
+                    return Ok(apiModel);
                 }
                 if (result.IsLockedOut)
                 {

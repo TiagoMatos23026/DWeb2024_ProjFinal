@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -7,6 +7,12 @@ function ViewPage() {
     const location = useLocation();
     const { page, autor } = location.state;
     const baseUrl = "http://localhost:5101/imagens/";
+
+    const navigate = useNavigate();
+
+    const handleVoltar = () => {
+        navigate("/HomePage");
+    }
 
     return (
         <div className="d-flex justify-content-center align-items-center vh-100">
@@ -32,7 +38,7 @@ function ViewPage() {
 
                     </div>
                     <div className="text-center mt-4">
-                        <Link className="btn btn-warning" to="/HomePage">Voltar</Link>
+                        <button className="btn btn-warning" onClick={()=>{handleVoltar()}}>Voltar</button>
                     </div>
                 </div>
             </div>

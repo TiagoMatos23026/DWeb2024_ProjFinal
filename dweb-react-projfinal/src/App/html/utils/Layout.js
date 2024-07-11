@@ -7,62 +7,28 @@ import LoginPage from "../LoginPage";
 import { useAuth } from "../../../App";
 
 function Layout() {
-    const [isLoggedIn, setLogIn] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
-    const [pagesList, setPagesList] = useState([]);
-    const [utentesList, setUtentesList] = useState([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
-    const [sessionUser, setSessionUser] = useState(sessionStorage.getItem('userLogged'));
+
+    const [loggedUser, setLoggedUser] = useState(null);
+
+    const { user, setUser } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    useEffect(() => {
-        setSessionUser(sessionStorage.getItem('userLogged')); 
-    }, [sessionStorage.getItem('userLogged')]);
-
-    const fetchData = async () => {
-        try {
-            const [pagesResponse, utentesResponse] = await Promise.all([getPagesAPI(), getUtentesAPI()]);
-            const pagesData = await pagesResponse.json();
-            const utentesData = await utentesResponse.json();
-            setPagesList(pagesData);
-            setUtentesList(utentesData);
-        } catch (error) {
-            console.error('Error fetching data', error);
-        }
-    };
-
-    const handleSearch = (e) => {
-        e.preventDefault();
-        const filteredResults = pagesList.filter(page => page.name.toLowerCase().includes(searchQuery.toLowerCase()));
-        setSearchResults(filteredResults);
-        setShowSearchResults(true); 
-    };
-
-    const handleSearchLinkClick = () => {
-        setShowSearchResults(false); 
-    };
-
     const handleHomePageClick = () => {
-        if (location.pathname === "/HomePage") {
-            window.location.reload();
-        } else {
-            navigate("/HomePage");
-        }
-    };
-
-    const handleLogout = () => {
-        sessionStorage.setItem('userLogged', 'null');
-        setSessionUser('null');
         navigate("/HomePage");
     };
 
-    const { user, setUser } = useAuth();
+    const handleProfileClick = (id) => {
+        navigate("/ProfilePage", { state: {  id } });
+    };
+
+    const handleLogout = () => {
+        setUser(null);
+        navigate("/HomePage");
+    };
 
     return (
         <>
@@ -70,22 +36,20 @@ function Layout() {
                 <Link className="navbar-brand ms-3" to="/HomePage" onClick={handleHomePageClick}>HowToMaster</Link>
 
                 <div className="collapse navbar-collapse d-flex" id="navbarSupportedContent">
-                    <form onSubmit={handleSearch} className="d-flex me-auto">
+                    <form className="d-flex me-auto">
                         <input
                             className="form-control me-2"
                             type="search"
                             placeholder="Pesquisa..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
                         />
                         <button className="btn btn-success ms-2" type="submit">Pesquisar</button>
                     </form>
 
                     <ul className="navbar-nav d-flex align-items-center me-3">
-                        {sessionUser !== 'null' && sessionUser !== null ? (
+                        {user !== 'null' && user !== null ? (
                             <>
                                 <li className="nav-item">
-                                    <Link className="btn btn-primary ms-2" to="/ProfilePage">Meu Perfil</Link>
+                                    <button className="btn btn-primary ms-2" onClick={() => handleProfileClick(user.utente.id)}>Meu Perfil</button>
                                 </li>
                                 <li className="nav-item">
                                     <Link className="btn btn-danger ms-2" to="/CreatePage">Criar Página</Link>
@@ -113,5 +77,4 @@ function Layout() {
         </>
     );
 }
-
 export default Layout;

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { render } from '@testing-library/react';
-import { getPagesAPI, getUtentesAPI } from '../api/apiConnection';
+import { getPages, getUtentes } from '../api/apiConnection';
 
-const CreatePage = () => {
+function CreatePage() {
     const [ utentesList, setUtentesList ] = useState('');
     const [ pagesList, setPagesList ] = useState('');
     const email = sessionStorage.getItem('userLogged');
@@ -19,7 +19,7 @@ const CreatePage = () => {
     
     const fetchData = async () => {
         try {
-            const [pagesResponse, utentesResponse] = await Promise.all([getPagesAPI(), getUtentesAPI()]);
+            const [pagesResponse, utentesResponse] = await Promise.all([getPages(), getUtentes()]);
             const pagesData = await pagesResponse.json();
             const utentesData = await utentesResponse.json();
             setPagesList(pagesData);

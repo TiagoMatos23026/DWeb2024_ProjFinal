@@ -43,6 +43,21 @@ namespace DWebProjFinal.Controllers.API
             return paginas;
         }
 
+        // GET: api/PaginasAPI/UtenteFK
+        [HttpGet("utente/{utenteFK}")]
+        public async Task<ActionResult<IEnumerable<Paginas>>> GetPaginasByUtente(int utenteFK)
+        {
+            var paginas = await _context.Paginas.Where(p => p.UtenteFK == utenteFK).ToListAsync();
+
+            if (paginas == null)
+            {
+                return NotFound();
+            }
+
+            return paginas;
+        }
+
+
         // PUT: api/PaginasAPI/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -77,29 +92,43 @@ namespace DWebProjFinal.Controllers.API
         // POST: api/PaginasAPI
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        [Authorize]
-        public async Task<ActionResult<Paginas>> PostPaginas(Paginas paginas)
+        public async Task<ActionResult<Paginas>> PostPaginas(Paginas paginas, string token)
         {
-            _context.Paginas.Add(paginas);
-            await _context.SaveChangesAsync();
+            if (token == null)
+            {
+                return BadRequest();
+            }
+            else
+            {
+                _context.Paginas.Add(paginas);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPaginas", new { id = paginas.Id }, paginas);
+                return CreatedAtAction("GetPaginas", new { id = paginas.Id }, paginas);
+            }
         }
 
         // DELETE: api/PaginasAPI/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePaginas(int id)
+        public async Task<IActionResult> DeletePaginas(int id, string token)
         {
-            var paginas = await _context.Paginas.FindAsync(id);
-            if (paginas == null)
+            if (token == null)
             {
-                return NotFound();
+                return BadRequest();
+            }
+            else
+            {
+                var paginas = await _context.Paginas.FindAsync(id);
+                if (paginas == null)
+                {
+                    return NotFound();
+                }
+
+                _context.Paginas.Remove(paginas);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
 
-            _context.Paginas.Remove(paginas);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
         private bool PaginasExists(int id)

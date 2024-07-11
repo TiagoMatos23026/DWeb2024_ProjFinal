@@ -15,6 +15,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+/*
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -34,7 +35,7 @@ builder.Services.AddAuthentication(x =>
         ValidateIssuerSigningKey = true
     };
 });
-
+*/
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
@@ -45,10 +46,6 @@ builder.Services.AddTransient<CategoriasController>();
 builder.Services.AddTransient<PaginasController>();
 builder.Services.AddTransient<TokenGenerateController>();
 builder.Services.AddControllersWithViews();
-
-builder.Services.AddAuthorization();
-
-
 
 var app = builder.Build();
 

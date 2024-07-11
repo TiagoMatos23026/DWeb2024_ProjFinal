@@ -22,7 +22,7 @@ namespace DWebProjFinal.Controllers
 
         }
 
-        public IActionResult GetToken(string Email, string Password)
+        public string GetToken(string Email, string Password)
         {
 
             var issuer = _configuration["JwtSetting:Issuer"];
@@ -52,7 +52,7 @@ namespace DWebProjFinal.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var jwttoken = tokenHandler.WriteToken(token);
             var stringToken = tokenHandler.WriteToken(token);
-            return Ok(stringToken);
+            return stringToken;
         }
 
 

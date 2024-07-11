@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap.css';
-import { getUtentesAPI, getPagesAPI } from "../api/apiConnection";
+import { getUtentes, getPages } from "../api/apiConnection";
+import { useAuth } from "../../App";
 
 function FrontPage() {
     const [pagesList, setPagesList] = useState([]);
     const [utentesList, setUtentesList] = useState([]);
     const navigate = useNavigate();
+    const { user, setUser } = useAuth();
 
     const shufflePages = (array) => {
         for (let i = array.length - 1; i > 0; i--) {
@@ -18,8 +20,8 @@ function FrontPage() {
     };
 
     const fetchData = async () => {
-        let utentesData = await getUtentesAPI();
-        let pagesData = await getPagesAPI();
+        let utentesData = await getUtentes();
+        let pagesData = await getPages();
         setUtentesList(shufflePages(utentesData));
         setPagesList(shufflePages(pagesData));
     }
@@ -54,11 +56,27 @@ function FrontPage() {
     };
 
     return (
-        <div className="container-fluid">
+        <>
+            {user !== 'null' && user !== null ? (
+                <>
+                    <div className="text-center mt-3">
+                        <h1>Bem-Vindo, {user.utente.nome} ao HowToMaster</h1>
+                    </div>
+                </>
+            ) : (
+                <>
+                <div className="text-center mt-3">
+                        <h1>Bem-Vindo ao HowToMaster</h1>
+                    </div>
+                </>
+            )}
+
+            < div className="container-fluid">
             <div className="row">
                 {renderPages()}
             </div>
-        </div>
+        </div >
+        </>
     );
 }
 
