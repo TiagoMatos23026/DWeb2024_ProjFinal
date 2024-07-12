@@ -25,7 +25,7 @@ namespace DWebProjFinal.Controllers.API
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    
+
     public class UtentesAPIController : ControllerBase
     {
         private readonly SignInManager<IdentityUser> _signInManager;
@@ -105,6 +105,7 @@ namespace DWebProjFinal.Controllers.API
         /// </summary>
         /// <returns></returns>
         // GET: api/UtentesAPI
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Utentes>>> GetUtentes()
         {
@@ -117,6 +118,7 @@ namespace DWebProjFinal.Controllers.API
         /// <param name="id"></param>
         /// <returns></returns>
         // GET: api/UtentesAPI/5
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<Utentes>> GetUtente(int id)
         {
@@ -130,7 +132,6 @@ namespace DWebProjFinal.Controllers.API
             return utente;
         }
 
-        [Authorize]
         [HttpGet("email/{email}")]
         public async Task<ActionResult<Utentes>> GetUtenteByEmail(string email)
         {
@@ -155,13 +156,11 @@ namespace DWebProjFinal.Controllers.API
         // PUT: api/UtentesAPI/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUtentes(int id, Utentes utentes, string token)
+        public async Task<IActionResult> PutUtentes(Utentes utentes)
         {
-            if (token == null)
-            {
-                return BadRequest();
-            }
-            if (id != utentes.Id)
+            var userAtual = _userManager.GetUserId(User);
+
+            if (userAtual != utentes.UserID)
             {
                 return BadRequest();
             }
@@ -174,7 +173,7 @@ namespace DWebProjFinal.Controllers.API
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UtentesExists(id))
+                if (!UtentesExists(utentes.Id))
                 {
                     return NotFound();
                 }
@@ -195,89 +194,96 @@ namespace DWebProjFinal.Controllers.API
         [HttpPost]
         public async Task<IActionResult> PostUtentes([FromForm] Utentes utente, [FromForm] IFormFile? IconFile)
         {
+            var userAtual = _userManager.GetUserId(User);
+
+            if (utente.UserID != userAtual)
+            {
+                return BadRequest();
+            }
+
             if (ModelState.IsValid)
-            {             
+            {
 
-                    //-----------------------------//
-                    //Algoritmo para upload de imagem
-                    //-----------------------------//
-                    string nomeImagem = "";
-                    bool haImagem = false;
+                //-----------------------------//
+                //Algoritmo para upload de imagem
+                //-----------------------------//
+                string nomeImagem = "";
+                bool haImagem = false;
 
-                    // há ficheiro?
-                    if (IconFile == null)
+                // há ficheiro?
+                if (IconFile == null)
+                {
+                    utente.Icon = "defaultThumbnail.png";
+                }
+                else
+                {
+                    // há ficheiro, mas é uma imagem?
+                    if (!(IconFile.ContentType == "image/png" ||
+                         IconFile.ContentType == "image/jpeg" ||
+                         IconFile.ContentType == "image/jpg"
+                       ))
                     {
+                        // não
+                        // vamos usar uma imagem pre-definida
                         utente.Icon = "defaultThumbnail.png";
                     }
                     else
                     {
-                        // há ficheiro, mas é uma imagem?
-                        if (!(IconFile.ContentType == "image/png" ||
-                             IconFile.ContentType == "image/jpeg" ||
-                             IconFile.ContentType == "image/jpg"
-                           ))
-                        {
-                            // não
-                            // vamos usar uma imagem pre-definida
-                            utente.Icon = "defaultThumbnail.png";
-                        }
-                        else
-                        {
-                            // há imagem
-                            haImagem = true;
-                            // gerar nome imagem
-                            Guid g = Guid.NewGuid();
-                            nomeImagem = g.ToString();
-                            string extensaoImagem = Path.GetExtension(IconFile.FileName).ToLowerInvariant();
-                            nomeImagem += extensaoImagem;
-                            // guardar o nome do ficheiro na BD
-                            utente.Icon = nomeImagem;
-                        }
+                        // há imagem
+                        haImagem = true;
+                        // gerar nome imagem
+                        Guid g = Guid.NewGuid();
+                        nomeImagem = g.ToString();
+                        string extensaoImagem = Path.GetExtension(IconFile.FileName).ToLowerInvariant();
+                        nomeImagem += extensaoImagem;
+                        // guardar o nome do ficheiro na BD
+                        utente.Icon = nomeImagem;
+                    }
+                }
+
+                //a imagem ao chegar aqui está pronta a ser uploaded
+                if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
+                {
+
+                    //determinar o local de armazenamento da imagem dentro do disco rígido
+                    string localizacaoImagem = _webHostEnvironment.WebRootPath;
+                    localizacaoImagem = Path.Combine(localizacaoImagem, "imagens");
+
+                    //será que o local existe?
+                    if (!Directory.Exists(localizacaoImagem))   //se não houver local para guardar a imagem...
+                    {
+                        Directory.CreateDirectory(localizacaoImagem);   //criar um novo local
                     }
 
-                    //a imagem ao chegar aqui está pronta a ser uploaded
-                    if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
-                    {
+                    //existindo local para guardar a imagem, informar o servidor do seu nome
+                    //e de onde vai ser guardada
+                    string nomeFicheiro = Path.Combine(localizacaoImagem, nomeImagem);
 
-                        //determinar o local de armazenamento da imagem dentro do disco rígido
-                        string localizacaoImagem = _webHostEnvironment.WebRootPath;
-                        localizacaoImagem = Path.Combine(localizacaoImagem, "imagens");
+                    //guardar a imagem no disco rígido
+                    using var stream = new FileStream(nomeFicheiro, FileMode.Create);
+                    await IconFile.CopyToAsync(stream);
 
-                        //será que o local existe?
-                        if (!Directory.Exists(localizacaoImagem))   //se não houver local para guardar a imagem...
-                        {
-                            Directory.CreateDirectory(localizacaoImagem);   //criar um novo local
-                        }
+                }
+                //--------------//
+                //Fim do algoritmo
+                //--------------//
 
-                        //existindo local para guardar a imagem, informar o servidor do seu nome
-                        //e de onde vai ser guardada
-                        string nomeFicheiro = Path.Combine(localizacaoImagem, nomeImagem);
+                _context.Add(utente);
+                await _context.SaveChangesAsync();
 
-                        //guardar a imagem no disco rígido
-                        using var stream = new FileStream(nomeFicheiro, FileMode.Create);
-                        await IconFile.CopyToAsync(stream);
+                // Automatically confirm the email
+                var user = await _userManager.FindByIdAsync(utente.UserID);
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var confirmResult = await _userManager.ConfirmEmailAsync(user, token);
 
-                    }
-                    //--------------//
-                    //Fim do algoritmo
-                    //--------------//
-
-                    _context.Add(utente);
-                    await _context.SaveChangesAsync();
-
-                    // Automatically confirm the email
-                    var user = await _userManager.FindByIdAsync(utente.UserID);
-                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var confirmResult = await _userManager.ConfirmEmailAsync(user, token);
-
-                    if (confirmResult.Succeeded)
-                    {
-                        return Ok();
-                    }
-                    else
-                    {
-                        return BadRequest("Error ao confirmar o email");
-                    }             
+                if (confirmResult.Succeeded)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest("Error ao confirmar o email");
+                }
             }
 
             return BadRequest(ModelState);
@@ -292,13 +298,19 @@ namespace DWebProjFinal.Controllers.API
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUtentes(int id)
         {
-            var utentes = await _context.Utentes.FindAsync(id);
-            if (utentes == null)
+            var userAtual = _userManager.GetUserId(User);
+
+            var utente = await _context.Utentes.FindAsync(id);
+            if (utente == null)
             {
                 return NotFound();
             }
+            if (utente.UserID != userAtual)
+            {
+                return BadRequest();
+            }
 
-            _context.Utentes.Remove(utentes);
+            _context.Utentes.Remove(utente);
             await _context.SaveChangesAsync();
 
             return NoContent();
