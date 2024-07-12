@@ -46,7 +46,7 @@ namespace DWebProjFinal.Controllers.API
             return paginas;
         }
 
-        // GET: api/PaginasAPI/UtenteFK
+        // GET: api/PaginasAPI/utente/UtenteFK
         [HttpGet("utente/{utenteFK}")]
         public async Task<ActionResult<IEnumerable<Paginas>>> GetPaginasByUtente(int utenteFK)
         {
@@ -65,31 +65,86 @@ namespace DWebProjFinal.Controllers.API
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPaginas(int id, Paginas paginas)
+        public async Task<IActionResult> PutPaginas([FromForm] Paginas pagina, [FromForm] IFormFile? ImgThumbnail)
         {
-            if (id != paginas.Id)
+            if (ModelState.IsValid)
             {
-                return BadRequest();
-            }
+                //-----------------------------//
+                //Algoritmo para upload de imagem
+                //-----------------------------//
+                string nomeImagem = "";
+                bool haImagem = false;
 
-            _context.Entry(paginas).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PaginasExists(id))
+                // há ficheiro?
+                if (ImgThumbnail == null)
                 {
-                    return NotFound();
+                    pagina.Thumbnail = "defaultThumbnail.png";
                 }
                 else
                 {
-                    throw;
+                    // há ficheiro, mas é uma imagem?
+                    if (!(ImgThumbnail.ContentType == "image/png" ||
+                         ImgThumbnail.ContentType == "image/jpeg" ||
+                         ImgThumbnail.ContentType == "image/jpg"
+                       ))
+                    {
+                        // não
+                        // vamos usar uma imagem pre-definida
+                        pagina.Thumbnail = "defaultThumbnail.png";
+                    }
+                    else
+                    {
+                        // há imagem
+                        haImagem = true;
+                        // gerar nome imagem
+                        Guid g = Guid.NewGuid();
+                        nomeImagem = g.ToString();
+                        string extensaoImagem = Path.GetExtension(ImgThumbnail.FileName).ToLowerInvariant();
+                        nomeImagem += extensaoImagem;
+                        // guardar o nome do ficheiro na BD
+                        pagina.Thumbnail = nomeImagem;
+                    }
+                }
+
+                //a imagem ao chegar aqui está pronta a ser uploaded
+                if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
+                {
+
+                    //determinar o local de armazenamento da imagem dentro do disco rígido
+                    string localizacaoImagem = _webHostEnvironment.WebRootPath;
+                    localizacaoImagem = Path.Combine(localizacaoImagem, "imagens");
+
+                    //será que o local existe?
+                    if (!Directory.Exists(localizacaoImagem))   //se não houver local para guardar a imagem...
+                    {
+                        Directory.CreateDirectory(localizacaoImagem);   //criar um novo local
+                    }
+
+                    //existindo local para guardar a imagem, informar o servidor do seu nome
+                    //e de onde vai ser guardada
+                    string nomeFicheiro = Path.Combine(localizacaoImagem, nomeImagem);
+
+                    //guardar a imagem no disco rígido
+                    using var stream = new FileStream(nomeFicheiro, FileMode.Create);
+                    await ImgThumbnail.CopyToAsync(stream);
+
+                }
+                //--------------//
+                //Fim do algoritmo
+                //--------------//
+
+                _context.Entry(pagina).State = EntityState.Modified;
+
+                try
+                {
+
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    return BadRequest();
                 }
             }
-
             return NoContent();
         }
 

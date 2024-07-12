@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { getUtenteDetails, getPagesByUtente } from '../api/apiConnection';
-import { useNavigate, useLocation } from "react-router-dom";
+import { getUtenteDetails, getPagesByUtente, deletePageById } from '../api/apiConnection';  // Import deletePageById
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../App';
+import axios from 'axios';  // Import Axios
 
 function ProfilePage() {
     const location = useLocation();
@@ -10,18 +10,31 @@ function ProfilePage() {
     const [pages, setPages] = useState([]);
     const [utente, setUtente] = useState(null);
 
-    const { user, setUser } = useAuth();
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     const handleVoltar = () => {
-        navigate("/HomePage");
-    }
+        navigate('/HomePage');
+    };
 
     const handleEdit = () => {
-        navigate("/EditProfile", { state: { id } });
-    }
+        navigate('/HomePage');
+    };
 
-    const handleDeletePage = async (pageId) => {
+    const handleDeleteUser = () => {
+        navigate('/HomePage');
+    };
+
+    const handleCardClick = (page) => {
+        const autor = utente;
+        navigate('/ViewPage', { state: { page, autor } });
+    };
+
+    const handleEditPage = (page) => {
+        navigate('/EditPaginaPage', { state: { page } });
+    };
+
+    const handleDelete = async (pageId) => {
         // Confirm before deleting
         const confirmed = window.confirm("Tem certeza de que deseja excluir esta página?");
         if (!confirmed) return;
@@ -40,32 +53,23 @@ function ProfilePage() {
         }
     }
 
-    const handleCardClick = (page) => {
-        const autor = utente;
-        navigate('/ViewPage', { state: { page, autor } });
-    };
-
     async function fetchData() {
-        try {
-            const utenteData = await getUtenteDetails(id);
-            const pagesData = await getPagesByUtente(id);
-            setUtente(utenteData);
-            setPages(pagesData);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
+        const utenteData = await getUtenteDetails(id);
+        const pagesData = await getPagesByUtente(id);
+        setUtente(utenteData);
+        setPages(pagesData);
     }
 
     useEffect(() => {
         fetchData();
-    }, [id]);
+    }, []);
 
     const renderPages = () => {
         if (!utente) {
             return <div>A carregar...</div>;
         }
 
-        const baseUrl = "http://localhost:5101/imagens/";
+        const baseUrl = 'http://localhost:5101/imagens/';
 
         return (
             <div className="container mt-5">
@@ -83,7 +87,7 @@ function ProfilePage() {
                         </div>
                         <div className="text-center mt-4">
                             <button className="btn btn-success me-4" onClick={handleEdit}>Editar Perfil</button>
-                            <button className="btn btn-warning" onClick={handleVoltar}>Voltar</button>                        
+                            <button className="btn btn-warning" onClick={handleVoltar}>Voltar</button>
                         </div>
                     </div>
                     <div className="col-md-9">
@@ -111,7 +115,12 @@ function ProfilePage() {
                                                 />
                                                 <div className="card-body">
                                                     <h6 className="card-title">{page.name}</h6>
-                                                    <button className="btn btn-danger" onClick={() => handleDeletePage(page.id)}>Apagar</button>
+                                                    <button className="btn btn-primary me-2" onClick={() => handleEditPage(page)}>
+                                                        Editar
+                                                    </button>
+                                                    <button className="btn btn-danger" onClick={() => handleDelete(page.id)}>
+                                                        Apagar
+                                                    </button>                                                  
                                                 </div>
                                             </div>
                                         </div>

@@ -16,6 +16,7 @@ import {
   } from 'react-router-dom';
 import RegisterPage from './App/html/RegisterPage';
 import ProfilePage from './App/html/ProfilePage';
+import EditPaginaPage from './App/html/EditPaginaPage';
 
 export const AuthContext = createContext({ });
 export const useAuth = () => useContext(AuthContext);
@@ -32,6 +33,7 @@ function App() {
                         <Route className="container" path="/HomePage" element={<HomePage />} />
                         <Route className="container" path="/ViewPage" element={<ViewPage />} />
                         <Route className="container" path="/SearchPage" element={<SearchPage />} />
+                        <Route className="container" path="/EditPaginaPage" element={<EditPaginaPage />} />
                         <Route className="container" path="/LoginPage" element={<LoginPage />} />
                         <Route className="container" path="/RegisterPage" element={<RegisterPage />} />
                         <Route className="container" path="/ProfilePage" element={<ProfilePage />} />
