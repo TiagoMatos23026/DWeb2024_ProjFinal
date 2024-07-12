@@ -5,11 +5,11 @@ import 'bootstrap/dist/css/bootstrap.css';
 import { getUtentes, getPages } from "../api/apiConnection";
 import { useAuth } from "../../App";
 
-function FrontPage() {
+function HomePage() {
     const [pagesList, setPagesList] = useState([]);
     const [utentesList, setUtentesList] = useState([]);
     const navigate = useNavigate();
-    const { user, setUser } = useAuth();
+    const { user } = useAuth();
 
     const shufflePages = (array) => {
         for (let i = array.length - 1; i > 0; i--) {
@@ -20,16 +20,19 @@ function FrontPage() {
     };
 
     const fetchData = async () => {
-        let utentesData = await getUtentes();
-        let pagesData = await getPages();
-        setUtentesList(shufflePages(utentesData));
-        setPagesList(shufflePages(pagesData));
-    }
+        try {
+            let utentesData = await getUtentes();
+            let pagesData = await getPages();
+            setUtentesList(shufflePages(utentesData));
+            setPagesList(shufflePages(pagesData));
+        } catch (error) {
+            console.error("Error fetching data: ", error);
+        }
+    };
 
     useEffect(() => {
         fetchData();
-    }, []);
-
+    }, [user]); // Added user as a dependency
 
     const handleCardClick = (page) => {
         const autor = utentesList.find(utente => utente.id === page.utenteFK);
@@ -57,27 +60,23 @@ function FrontPage() {
 
     return (
         <>
-            {user !== 'null' && user !== null ? (
-                <>
-                    <div className="text-center mt-3">
-                        <h1>Bem-Vindo, {user.utente.nome} ao HowToMaster</h1>
-                    </div>
-                </>
-            ) : (
-                <>
+            {user ? (
                 <div className="text-center mt-3">
-                        <h1>Bem-Vindo ao HowToMaster</h1>
-                    </div>
-                </>
+                    <h1>Bem-Vindo, {user.nome} ao HowToMaster</h1>
+                </div>
+            ) : (
+                <div className="text-center mt-3">
+                    <h1>Bem-Vindo ao HowToMaster</h1>
+                </div>
             )}
 
-            < div className="container-fluid">
-            <div className="row">
-                {renderPages()}
+            <div className="container-fluid">
+                <div className="row">
+                    {renderPages()}
+                </div>
             </div>
-        </div >
         </>
     );
 }
 
-export default FrontPage;
+export default HomePage;

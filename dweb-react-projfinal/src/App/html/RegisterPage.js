@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from 'axios';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -10,14 +11,14 @@ const RegisterPage = () => {
     Email: '',
     Password: '',
     ConfirmPassword: '',
-    IconFile: ''
+    IconFile: null,
   });
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
     setFormData({
       ...formData,
-      [name]: type === 'file' ? files[0] : value
+      [name]: type === 'file' ? files[0] : value,
     });
   };
 
@@ -26,24 +27,25 @@ const RegisterPage = () => {
 
     const submitData = new FormData();
 
-    submitData.append('Nome', formData.nome);
-    submitData.append('Telemovel', formData.telemovel);
+    submitData.append('Nome', formData.Nome);
+    submitData.append('Telemovel', formData.Telemovel);
     submitData.append('dataNasc', formData.dataNasc);
-    submitData.append('biografia', formData.biografia);
-    submitData.append('Email', formData.email);
-    submitData.append('Password', formData.password);
-    submitData.append('ConfirmPassword', formData.password);
-    submitData.append('IconFile', formData.icon);
+    submitData.append('biografia', formData.Biografia);
+    submitData.append('Email', formData.Email);
+    submitData.append('Password', formData.Password);
+    submitData.append('ConfirmPassword', formData.ConfirmPassword);
+    submitData.append('IconFile', formData.IconFile);
 
     try {
-      const response = await fetch('http://localhost:5101/api/UtentesAPI', {
-        method: 'POST',
-        body: submitData
+      const response = await axios.post('http://localhost:5101/api/AccountAPI/register', submitData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
-      if (response.ok) {
-        const responseData = await response.json();
-        console.log('Response:', responseData);
+      if (response.status === 200) {
+        console.log('User registered successfully');
+        // Redirect or show success message
       } else {
         console.error('Error submitting form:', response.statusText);
       }
@@ -58,71 +60,72 @@ const RegisterPage = () => {
         <h2 className="text-center">Registar</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-2">
-            <label htmlFor="nome" className="form-label">Nome:</label>
+            <label htmlFor="Nome" className="form-label">Nome:</label>
             <input
               type="text"
-              id="nome"
-              name="nome"
+              id="Nome"
+              name="Nome"
               className="form-control"
-              value={formData.nome}
+              value={formData.Nome}
               onChange={handleChange}
               required
             />
           </div>
           <div className="mb-2">
-            <label htmlFor="icon" className="form-label">Icon:</label>
+            <label htmlFor="IconFile" className="form-label">Icon:</label>
             <input
               type="file"
-              id="icon"
-              name="icon"
+              id="IconFile"
+              name="IconFile"
               className="form-control"
               onChange={handleChange}
+              required
             />
           </div>
           <div className="mb-2">
-            <label htmlFor="email" className="form-label">Email:</label>
+            <label htmlFor="Email" className="form-label">Email:</label>
             <input
               type="email"
-              id="email"
-              name="email"
+              id="Email"
+              name="Email"
               className="form-control"
-              value={formData.email}
+              value={formData.Email}
               onChange={handleChange}
               required
             />
           </div>
           <div className="mb-2">
-            <label htmlFor="telemovel" className="form-label">Telemóvel:</label>
+            <label htmlFor="Telemovel" className="form-label">Telemóvel:</label>
             <input
               type="text"
-              id="telemovel"
-              name="telemovel"
+              id="Telemovel"
+              name="Telemovel"
               className="form-control"
-              value={formData.telemovel}
+              value={formData.Telemovel}
               onChange={handleChange}
               required
             />
           </div>
           <div className="mb-2">
-            <label htmlFor="password" className="form-label">Password:</label>
+            <label htmlFor="Password" className="form-label">Password:</label>
             <input
               type="password"
-              id="password"
-              name="password"
+              id="Password"
+              name="Password"
               className="form-control"
-              value={formData.password}
+              value={formData.Password}
               onChange={handleChange}
               required
             />
           </div>
           <div className="mb-2">
-            <label htmlFor="confirmPassword" className="form-label">Confirmar Password:</label>
+            <label htmlFor="ConfirmPassword" className="form-label">Confirmar Password:</label>
             <input
               type="password"
-              id="confirmPassword"
-              name="confirmPassword"
+              id="ConfirmPassword"
+              name="ConfirmPassword"
               className="form-control"
-              value={formData.confirmPassword}
+              value={formData.ConfirmPassword}
               onChange={handleChange}
               required
             />
@@ -140,12 +143,12 @@ const RegisterPage = () => {
             />
           </div>
           <div className="mb-2">
-            <label htmlFor="biografia" className="form-label">Biografia:</label>
+            <label htmlFor="Biografia" className="form-label">Biografia:</label>
             <textarea
-              id="biografia"
-              name="biografia"
+              id="Biografia"
+              name="Biografia"
               className="form-control"
-              value={formData.biografia}
+              value={formData.Biografia}
               onChange={handleChange}
             />
           </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.css';
+import axios from 'axios';
 import { getPagesAPI, getUtentesAPI } from "../../api/apiConnection";
 import SearchPage from "../SearchPage";
 import LoginPage from "../LoginPage";
@@ -22,12 +23,20 @@ function Layout() {
     };
 
     const handleProfileClick = (id) => {
-        navigate("/ProfilePage", { state: {  id } });
+        navigate("/ProfilePage", { state: { id } });
     };
 
-    const handleLogout = () => {
-        setUser(null);
-        navigate("/HomePage");
+    const handleLogout = async () => {
+        try {
+            await axios.post('http://localhost:5101/api/AccountAPI/logout', {}, {
+                withCredentials: true,
+            });
+            setUser(null);
+            navigate("/HomePage");
+        } catch (error) {
+            console.error('Error logging out:', error);
+            alert('Erro ao sair. Por favor, tente novamente.');
+        }
     };
 
     return (
@@ -49,7 +58,7 @@ function Layout() {
                         {user !== 'null' && user !== null ? (
                             <>
                                 <li className="nav-item">
-                                    <button className="btn btn-primary ms-2" onClick={() => handleProfileClick(user.utente.id)}>Meu Perfil</button>
+                                    <button className="btn btn-primary ms-2" onClick={() => handleProfileClick(user.id)}>Meu Perfil</button>
                                 </li>
                                 <li className="nav-item">
                                     <Link className="btn btn-danger ms-2" to="/CreatePage">Criar Página</Link>
@@ -77,4 +86,5 @@ function Layout() {
         </>
     );
 }
+
 export default Layout;

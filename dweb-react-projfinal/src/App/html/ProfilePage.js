@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { getUtentesDetails, getPageDetails, getPages, getUtentes, getUtenteDetails, getPagesByUtente } from '../api/apiConnection';
+import axios from 'axios';
+import { getUtenteDetails, getPagesByUtente } from '../api/apiConnection';
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from '../../App';
 
 function ProfilePage() {
     const location = useLocation();
     const { id } = location.state;
-    const [pages, setPages] = useState(null);
+    const [pages, setPages] = useState([]);
     const [utente, setUtente] = useState(null);
 
     const { user, setUser } = useAuth();
@@ -17,11 +18,26 @@ function ProfilePage() {
     }
 
     const handleEdit = () => {
-        navigate("/HomePage");
+        navigate("/EditProfile", { state: { id } });
     }
 
-    const handleDeleteUser = () => {
-        navigate("/HomePage");
+    const handleDeletePage = async (pageId) => {
+        // Confirm before deleting
+        const confirmed = window.confirm("Tem certeza de que deseja excluir esta página?");
+        if (!confirmed) return;
+
+        try {
+            await axios.delete(`http://localhost:5101/api/PaginasAPI/${pageId}`, {
+                withCredentials: true, // Include credentials (cookies)
+            });
+
+            // Remove the deleted page from the local state
+            setPages(pages.filter(page => page.id !== pageId));
+            alert('Página excluída com sucesso!');
+        } catch (error) {
+            console.error('Error deleting page:', error);
+            alert('Houve um problema ao excluir a página.');
+        }
     }
 
     const handleCardClick = (page) => {
@@ -30,16 +46,19 @@ function ProfilePage() {
     };
 
     async function fetchData() {
-        const utenteData = await getUtenteDetails(id);
-        const pagesData = await getPagesByUtente(id);
-        setUtente(utenteData);
-        setPages(pagesData);
-        console.log(utente);
+        try {
+            const utenteData = await getUtenteDetails(id);
+            const pagesData = await getPagesByUtente(id);
+            setUtente(utenteData);
+            setPages(pagesData);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
     }
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [id]);
 
     const renderPages = () => {
         if (!utente) {
@@ -63,9 +82,9 @@ function ProfilePage() {
                             </div>
                         </div>
                         <div className="text-center mt-4">
-                        <button className="btn btn-success me-4" onClick={()=>{handleEdit()}}>Editar Perfil</button>
-                        <button className="btn btn-warning" onClick={()=>{handleVoltar()}}>Voltar</button>                        
-                    </div>
+                            <button className="btn btn-success me-4" onClick={handleEdit}>Editar Perfil</button>
+                            <button className="btn btn-warning" onClick={handleVoltar}>Voltar</button>                        
+                        </div>
                     </div>
                     <div className="col-md-9">
                         <div className="card mb-3">
@@ -81,7 +100,7 @@ function ProfilePage() {
                                 <h5 className="card-title">Páginas</h5>
                                 <div className="row">
                                     {pages.map((page, idx) => (
-                                        <div className="col-md-4 mb-3" key={idx}>
+                                        <div className="col-md-4 mb-3" key={page.id}>
                                             <div className="card">
                                                 <img
                                                     onClick={() => handleCardClick(page)}
@@ -92,9 +111,7 @@ function ProfilePage() {
                                                 />
                                                 <div className="card-body">
                                                     <h6 className="card-title">{page.name}</h6>
-                                                    <button className="btn btn-danger"
-                                                    //</div>onClick={() => handleDelete(page.id)}
-                                                    >Apagar</button>
+                                                    <button className="btn btn-danger" onClick={() => handleDeletePage(page.id)}>Apagar</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -113,6 +130,6 @@ function ProfilePage() {
             {renderPages()}
         </div>
     );
-};
+}
 
 export default ProfilePage;

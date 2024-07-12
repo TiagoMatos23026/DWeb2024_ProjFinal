@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using DWebProjFinal.Data;
 using DWebProjFinal.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 
 namespace DWebProjFinal.Controllers.API
 {
@@ -16,9 +17,11 @@ namespace DWebProjFinal.Controllers.API
     public class PaginasAPIController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public PaginasAPIController(ApplicationDbContext context)
+        public PaginasAPIController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
+            _webHostEnvironment = webHostEnvironment;
             _context = context;
         }
 
@@ -60,6 +63,7 @@ namespace DWebProjFinal.Controllers.API
 
         // PUT: api/PaginasAPI/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPaginas(int id, Paginas paginas)
         {
@@ -91,43 +95,101 @@ namespace DWebProjFinal.Controllers.API
 
         // POST: api/PaginasAPI
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPost]
-        public async Task<ActionResult<Paginas>> PostPaginas(Paginas paginas, string token)
+        public async Task<ActionResult<Paginas>> PostPaginas([FromForm] Paginas pagina, [FromForm] IFormFile ImgThumbnail)
         {
-            if (token == null)
+
+
+            //-----------------------------//
+            //Algoritmo para upload de imagem
+            //-----------------------------//
+            string nomeImagem = "";
+            bool haImagem = false;
+
+            // há ficheiro?
+            if (ImgThumbnail == null)
             {
-                return BadRequest();
+                pagina.Thumbnail = "defaultThumbnail.png";
             }
             else
             {
-                _context.Paginas.Add(paginas);
-                await _context.SaveChangesAsync();
-
-                return CreatedAtAction("GetPaginas", new { id = paginas.Id }, paginas);
+                // há ficheiro, mas é uma imagem?
+                if (!(ImgThumbnail.ContentType == "image/png" ||
+                     ImgThumbnail.ContentType == "image/jpeg" ||
+                     ImgThumbnail.ContentType == "image/jpg"
+                   ))
+                {
+                    // não
+                    // vamos usar uma imagem pre-definida
+                    pagina.Thumbnail = "defaultThumbnail.png";
+                }
+                else
+                {
+                    // há imagem
+                    haImagem = true;
+                    // gerar nome imagem
+                    Guid g = Guid.NewGuid();
+                    nomeImagem = g.ToString();
+                    string extensaoImagem = Path.GetExtension(ImgThumbnail.FileName).ToLowerInvariant();
+                    nomeImagem += extensaoImagem;
+                    // guardar o nome do ficheiro na BD
+                    pagina.Thumbnail = nomeImagem;
+                }
             }
+
+            //a imagem ao chegar aqui está pronta a ser uploaded
+            if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
+            {
+
+                //determinar o local de armazenamento da imagem dentro do disco rígido
+                string localizacaoImagem = _webHostEnvironment.WebRootPath;
+                localizacaoImagem = Path.Combine(localizacaoImagem, "imagens");
+
+                //será que o local existe?
+                if (!Directory.Exists(localizacaoImagem))   //se não houver local para guardar a imagem...
+                {
+                    Directory.CreateDirectory(localizacaoImagem);   //criar um novo local
+                }
+
+                //existindo local para guardar a imagem, informar o servidor do seu nome
+                //e de onde vai ser guardada
+                string nomeFicheiro = Path.Combine(localizacaoImagem, nomeImagem);
+
+                //guardar a imagem no disco rígido
+                using var stream = new FileStream(nomeFicheiro, FileMode.Create);
+                await ImgThumbnail.CopyToAsync(stream);
+
+            }
+            //--------------//
+            //Fim do algoritmo
+            //--------------//
+
+            _context.Paginas.Add(pagina);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+
+
         }
 
         // DELETE: api/PaginasAPI/5
+        [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePaginas(int id, string token)
+        public async Task<IActionResult> DeletePaginas(int id)
         {
-            if (token == null)
-            {
-                return BadRequest();
-            }
-            else
-            {
-                var paginas = await _context.Paginas.FindAsync(id);
-                if (paginas == null)
-                {
-                    return NotFound();
-                }
 
-                _context.Paginas.Remove(paginas);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
+            var paginas = await _context.Paginas.FindAsync(id);
+            if (paginas == null)
+            {
+                return NotFound();
             }
+
+            _context.Paginas.Remove(paginas);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+
 
         }
 

@@ -2,30 +2,58 @@ import React, { useState } from 'react';
 import { useAuth } from '../../App';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
-import { postLogin } from '../api/apiConnection';
+import axios from 'axios';
 
 function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
 
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = async (email, password) => {
-    const formData = new FormData();
-    formData.append('email', email);
-    formData.append('password', password);
-    return postLogin(formData);
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let res = await handleLogin(email, password);
-    setUser(res);
-    alert("Login efetuado com sucesso!");
-    navigate("/HomePage");
+    try {
+      console.log('Sending login request...');
+      const response = await axios.post('http://localhost:5101/api/AccountAPI/login', {
+        email,
+        password,
+        rememberMe
+      }, {
+        withCredentials: true // This will include cookies in the request
+      });
+
+      console.log('Login response:', response);
+
+      if (response.status === 200) {
+        const email = response.data;
+        console.log('Login successful, fetching user details for email:', email);
+
+        // Fetch user details after successful login
+        const utenteResponse = await axios.get(`http://localhost:5101/api/UtentesAPI/email/${email}`, {
+          withCredentials: true // Include credentials (cookies)
+        });
+
+        console.log('User details response:', utenteResponse);
+
+        if (utenteResponse.status !== 200) {
+          throw new Error('Failed to fetch user details');
+        }
+
+        const utente = utenteResponse.data;
+        console.log('Fetched user details:', utente);
+        await setUser(utente);
+        alert('Login efetuado com sucesso!');
+        navigate("/HomePage"); // Redirect to a protected page
+      }
+    } catch (err) {
+      console.error('Error during login or fetching user details:', err);
+      setError('Invalid login attempt');
+      alert('Verifique as suas credenciais.');
+    }
   };
 
   return (
@@ -43,6 +71,17 @@ function LoginPage() {
             <div className="mb-5">
               <label htmlFor="password" className="form-label">Password:</label>
               <input type="password" id="password" name="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            </div>
+
+            <div className="mb-5">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                Remember me
+              </label>
             </div>
 
             {error && <div className="alert alert-danger">{error}</div>}

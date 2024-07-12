@@ -18,11 +18,14 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Hosting;
 
 namespace DWebProjFinal.Controllers.API
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
+    
     public class UtentesAPIController : ControllerBase
     {
         private readonly SignInManager<IdentityUser> _signInManager;
@@ -30,15 +33,19 @@ namespace DWebProjFinal.Controllers.API
         private readonly ApplicationDbContext _context;
         private readonly UtentesController _utentesController;
         private readonly TokenGenerateController _tokenGenerateController;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public UtentesAPIController(
+
           UtentesController utentesController,
           UserManager<IdentityUser> userManager,
           SignInManager<IdentityUser> signInManager,
           ApplicationDbContext context,
+          IWebHostEnvironment webHostEnvironment,
           TokenGenerateController tokenGenerateController)
 
         {
+            _webHostEnvironment = webHostEnvironment;
             _tokenGenerateController = tokenGenerateController;
             _userManager = userManager;
             _signInManager = signInManager;
@@ -72,6 +79,8 @@ namespace DWebProjFinal.Controllers.API
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "As passwords não coincidem.")]
             public string ConfirmPassword { get; set; }
+
+            IFormFile? IconFile { get; set; }
         }
 
         /// <summary>
@@ -121,6 +130,22 @@ namespace DWebProjFinal.Controllers.API
             return utente;
         }
 
+        [Authorize]
+        [HttpGet("email/{email}")]
+        public async Task<ActionResult<Utentes>> GetUtenteByEmail(string email)
+        {
+            var userAtual = _userManager.GetUserId(User);
+
+            var utente = _context.Utentes.FirstOrDefault(m => m.UserID == userAtual);
+
+            if (utente == null)
+            {
+                return NotFound();
+            }
+
+            return utente;
+        }
+
         /// <summary>
         /// Método para Editar Utentes
         /// </summary>
@@ -130,8 +155,12 @@ namespace DWebProjFinal.Controllers.API
         // PUT: api/UtentesAPI/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUtentes(int id, Utentes utentes)
+        public async Task<IActionResult> PutUtentes(int id, Utentes utentes, string token)
         {
+            if (token == null)
+            {
+                return BadRequest();
+            }
             if (id != utentes.Id)
             {
                 return BadRequest();
@@ -164,19 +193,80 @@ namespace DWebProjFinal.Controllers.API
         /// <param name="registo"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> PostUtentes([FromForm] RegisterModel registo)
+        public async Task<IActionResult> PostUtentes([FromForm] Utentes utente, [FromForm] IFormFile? IconFile)
         {
             if (ModelState.IsValid)
-            {
-                var result = await Register(registo.Email, registo.Password, registo.ConfirmPassword);
+            {             
 
-                if (result is OkResult)
-                {
-                    _context.Add(registo.utente);
+                    //-----------------------------//
+                    //Algoritmo para upload de imagem
+                    //-----------------------------//
+                    string nomeImagem = "";
+                    bool haImagem = false;
+
+                    // há ficheiro?
+                    if (IconFile == null)
+                    {
+                        utente.Icon = "defaultThumbnail.png";
+                    }
+                    else
+                    {
+                        // há ficheiro, mas é uma imagem?
+                        if (!(IconFile.ContentType == "image/png" ||
+                             IconFile.ContentType == "image/jpeg" ||
+                             IconFile.ContentType == "image/jpg"
+                           ))
+                        {
+                            // não
+                            // vamos usar uma imagem pre-definida
+                            utente.Icon = "defaultThumbnail.png";
+                        }
+                        else
+                        {
+                            // há imagem
+                            haImagem = true;
+                            // gerar nome imagem
+                            Guid g = Guid.NewGuid();
+                            nomeImagem = g.ToString();
+                            string extensaoImagem = Path.GetExtension(IconFile.FileName).ToLowerInvariant();
+                            nomeImagem += extensaoImagem;
+                            // guardar o nome do ficheiro na BD
+                            utente.Icon = nomeImagem;
+                        }
+                    }
+
+                    //a imagem ao chegar aqui está pronta a ser uploaded
+                    if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
+                    {
+
+                        //determinar o local de armazenamento da imagem dentro do disco rígido
+                        string localizacaoImagem = _webHostEnvironment.WebRootPath;
+                        localizacaoImagem = Path.Combine(localizacaoImagem, "imagens");
+
+                        //será que o local existe?
+                        if (!Directory.Exists(localizacaoImagem))   //se não houver local para guardar a imagem...
+                        {
+                            Directory.CreateDirectory(localizacaoImagem);   //criar um novo local
+                        }
+
+                        //existindo local para guardar a imagem, informar o servidor do seu nome
+                        //e de onde vai ser guardada
+                        string nomeFicheiro = Path.Combine(localizacaoImagem, nomeImagem);
+
+                        //guardar a imagem no disco rígido
+                        using var stream = new FileStream(nomeFicheiro, FileMode.Create);
+                        await IconFile.CopyToAsync(stream);
+
+                    }
+                    //--------------//
+                    //Fim do algoritmo
+                    //--------------//
+
+                    _context.Add(utente);
                     await _context.SaveChangesAsync();
 
                     // Automatically confirm the email
-                    var user = await _userManager.FindByEmailAsync(registo.Email);
+                    var user = await _userManager.FindByIdAsync(utente.UserID);
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var confirmResult = await _userManager.ConfirmEmailAsync(user, token);
 
@@ -187,79 +277,9 @@ namespace DWebProjFinal.Controllers.API
                     else
                     {
                         return BadRequest("Error ao confirmar o email");
-                    }
-                }
-                else
-                {
-                    return result;
-                }
+                    }             
             }
 
-            return BadRequest(ModelState);
-        }
-
-        /// <summary>
-        /// Método para Registar um novo Login
-        /// É chamado ao ser criado um novo Utente
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        public async Task<IActionResult> Register(string Email, string Password, string ConfirmPassword)
-        {
-            if (ModelState.IsValid && Password == ConfirmPassword)
-            {
-                var user = new IdentityUser { UserName = Email, Email = Email };
-                var result = await _userManager.CreateAsync(user, Password);
-                if (result.Succeeded)
-                {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return Ok();
-                }
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-            }
-            return BadRequest(ModelState);
-        }
-
-        /// <summary>
-        /// Método para efetuar Login com um Utente
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromForm] LoginModel model)
-        {
-            if (ModelState.IsValid)
-            {
-
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
-
-                if (result.Succeeded)
-                {
-                    var userLogin = await _userManager.FindByNameAsync(model.Email);
-                    var userID = _userManager.GetUserId(User);
-
-                    var utente = _context.Utentes.FirstOrDefault(m => m.UserID == userID);
-
-                    APIModel apiModel = new APIModel();
-                    apiModel.utente = utente;
-
-                    var token = _tokenGenerateController.GetToken(model.Email, model.Password);
-                    apiModel.token = token;
-
-                    return Ok(apiModel);
-                }
-                if (result.IsLockedOut)
-                {
-                    return BadRequest("User account locked out.");
-                }
-                else
-                {
-                    return BadRequest("Invalid login attempt.");
-                }
-            }
             return BadRequest(ModelState);
         }
 
