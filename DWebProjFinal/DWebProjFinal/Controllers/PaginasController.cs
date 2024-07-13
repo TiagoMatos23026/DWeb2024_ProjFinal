@@ -225,7 +225,7 @@ namespace DWebProjFinal.Controllers
                 return NotFound();
             }
 
-            var pagina = _context.Paginas.Include(p => p.Utente).FirstOrDefault(c => c.Id == id);
+            var pagina = _context.Paginas.Include(p => p.Utente).Include(p => p.ListaCategorias).FirstOrDefault(c => c.Id == id);
             var userAtual = _userManager.GetUserId(User);
 
             if (pagina.Utente.UserID != userAtual)
@@ -249,7 +249,7 @@ namespace DWebProjFinal.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Descricao,Dificuldade,Conteudo,Thumbnail,UtenteFK")] Paginas pagina, IFormFile? ImgThumbnail)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Descricao,Dificuldade,Conteudo,Thumbnail,UtenteFK")] Paginas pagina, IFormFile? ImgThumbnail, string[] ListaCategorias)
         {
             if (id != pagina.Id)
             {
@@ -257,106 +257,133 @@ namespace DWebProjFinal.Controllers
             }
 
             var utente = _context.Utentes.FirstOrDefault(u => u.Id == pagina.UtenteFK);
+            if (utente == null)
+            {
+                return NotFound();
+            }
 
             var paginaUserID = utente.UserID;
-
             var userAtual = _userManager.GetUserId(User);
 
             if (userAtual != paginaUserID)
             {
-                return NotFound();
+                return Forbid();
             }
-            else
+
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
+                //-----------------------------//
+                // Algoritmo para upload de imagem
+                //-----------------------------//
+                string nomeImagem = "";
+                bool haImagem = false;
+
+                if (ImgThumbnail != null)
                 {
-
-                    //-----------------------------//
-                    //Algoritmo para upload de imagem
-                    //-----------------------------//
-                    string nomeImagem = "";
-                    bool haImagem = false;
-
-                    // há ficheiro?
-                    if (ImgThumbnail == null)
+                    if (!(ImgThumbnail.ContentType == "image/png" ||
+                          ImgThumbnail.ContentType == "image/jpeg" ||
+                          ImgThumbnail.ContentType == "image/jpg"))
                     {
-                        
+                        pagina.Thumbnail = "defaultThumbnail.png";
                     }
                     else
                     {
-                        // há ficheiro, mas é uma imagem?
-                        if (!(ImgThumbnail.ContentType == "image/png" ||
-                             ImgThumbnail.ContentType == "image/jpeg" ||
-                             ImgThumbnail.ContentType == "image/jpg"
-                           ))
-                        {
-                            // não
-                            // vamos usar uma imagem pre-definida
-                            pagina.Thumbnail = "defaultThumbnail.png";
-                        }
-                        else
-                        {
-                            // há imagem
-                            haImagem = true;
-                            // gerar nome imagem
-                            Guid g = Guid.NewGuid();
-                            nomeImagem = g.ToString();
-                            string extensaoImagem = Path.GetExtension(ImgThumbnail.FileName).ToLowerInvariant();
-                            nomeImagem += extensaoImagem;
-                            // guardar o nome do ficheiro na BD
-                            pagina.Thumbnail = nomeImagem;
-                        }
+                        haImagem = true;
+                        Guid g = Guid.NewGuid();
+                        nomeImagem = g.ToString() + Path.GetExtension(ImgThumbnail.FileName).ToLowerInvariant();
+                        pagina.Thumbnail = nomeImagem;
                     }
-
-                    //a imagem ao chegar aqui está pronta a ser uploaded
-                    if (haImagem)   //apenas segue para aqui se realmente HÁ imagem e é válida
-                    {
-
-                        //determinar o local de armazenamento da imagem dentro do disco rígido
-                        string localizacaoImagem = _webHostEnvironment.WebRootPath;
-                        localizacaoImagem = Path.Combine(localizacaoImagem, "imagens");
-
-                        //será que o local existe?
-                        if (!Directory.Exists(localizacaoImagem))   //se não houver local para guardar a imagem...
-                        {
-                            Directory.CreateDirectory(localizacaoImagem);   //criar um novo local
-                        }
-
-                        //existindo local para guardar a imagem, informar o servidor do seu nome
-                        //e de onde vai ser guardada
-                        string nomeFicheiro = Path.Combine(localizacaoImagem, nomeImagem);
-
-                        //guardar a imagem no disco rígido
-                        using var stream = new FileStream(nomeFicheiro, FileMode.Create);
-                        await ImgThumbnail.CopyToAsync(stream);
-
-                    }
-                    //--------------//
-                    //Fim do algoritmo
-                    //--------------//
-
-                    try
-                    {
-                        _context.Update(pagina);
-                        await _context.SaveChangesAsync();
-                    }
-                    catch (DbUpdateConcurrencyException)
-                    {
-                        if (!PaginasExists(pagina.Id))
-                        {
-                            return NotFound();
-                        }
-                        else
-                        {
-                            throw;
-                        }
-                    }
-                    return RedirectToAction("Index", "Home");
                 }
+
+                if (haImagem)
+                {
+                    string localizacaoImagem = Path.Combine(_webHostEnvironment.WebRootPath, "imagens");
+                    if (!Directory.Exists(localizacaoImagem))
+                    {
+                        Directory.CreateDirectory(localizacaoImagem);
+                    }
+
+                    string nomeFicheiro = Path.Combine(localizacaoImagem, nomeImagem);
+                    using var stream = new FileStream(nomeFicheiro, FileMode.Create);
+                    await ImgThumbnail.CopyToAsync(stream);
+                }
+                //--------------//
+                // Fim do algoritmo
+                //--------------//
+
+                // Load existing pagina with categories to prevent tracking issues
+                var existingPagina = await _context.Paginas
+                    .Include(p => p.ListaCategorias)
+                    .FirstOrDefaultAsync(p => p.Id == id);
+
+                if (existingPagina == null)
+                {
+                    return NotFound();
+                }
+
+                // Clear existing categories
+                existingPagina.ListaCategorias.Clear();
+
+                foreach (var Nome in ListaCategorias)
+                {
+                    if (!string.IsNullOrWhiteSpace(Nome))
+                    {
+                        var categoria = _context.Categorias.FirstOrDefault(c => c.Nome == Nome);
+
+                        if (categoria == null)
+                        {
+                            var newCategoria = new Categorias { Nome = Nome };
+                            _categoriasController.Create(newCategoria);
+                            _context.Categorias.Add(newCategoria);
+                            await _context.SaveChangesAsync();
+                            categoria = newCategoria;
+                        }
+
+                        existingPagina.ListaCategorias.Add(categoria);
+                    }
+                }
+
+                // Update other properties of pagina
+                existingPagina.Name = pagina.Name;
+                existingPagina.Descricao = pagina.Descricao;
+                existingPagina.Dificuldade = pagina.Dificuldade;
+                existingPagina.Conteudo = pagina.Conteudo;
+                existingPagina.Thumbnail = pagina.Thumbnail;
+
+                try
+                {
+                    _context.Update(existingPagina);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PaginaExists(pagina.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                return RedirectToAction("Index", "Home");
             }
 
-            return View();
+            return View(pagina);
         }
+
+        private bool PaginaExists(int id)
+        {
+            return _context.Paginas.Any(e => e.Id == id);
+        }
+
+
+        private bool PaginasExists(int id)
+        {
+            return _context.Paginas.Any(e => e.Id == id);
+        }
+
 
         /// <summary>
         /// Método para ir buscar a Página a ser Apagada
@@ -378,7 +405,7 @@ namespace DWebProjFinal.Controllers
 
             if (paginas.Utente.UserID != userAtual)
             {
-                return BadRequest();      
+                return BadRequest();
             }
 
             if (paginas == null)
@@ -418,14 +445,5 @@ namespace DWebProjFinal.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        /// <summary>
-        /// Método para saber se a Página existe
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        private bool PaginasExists(int id)
-        {
-            return _context.Paginas.Any(e => e.Id == id);
-        }
     }
 }

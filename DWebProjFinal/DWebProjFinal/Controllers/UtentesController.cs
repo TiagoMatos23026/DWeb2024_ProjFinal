@@ -265,7 +265,7 @@ namespace DWebProjFinal.Controllers
                 // há ficheiro?
                 if (IconFile == null)
                 {
-                    utente.Icon = "defaultIcon.png";
+                    utente.Icon = utente.Icon;
                 }
                 else
                 {

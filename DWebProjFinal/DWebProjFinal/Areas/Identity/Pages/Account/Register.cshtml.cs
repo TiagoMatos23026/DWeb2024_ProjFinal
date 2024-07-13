@@ -163,7 +163,7 @@ namespace DWebProjFinal.Areas.Identity.Pages.Account
                     try
                     {
                         Input.utente.UserID = userLogin.Id;
-                        await _utenteController.Create(Input.utente, Input.IconFile); //chamar UtentesContoller para criação de um objeto Utente
+                        await _utentesController.Create(Input.utente, Input.IconFile); //chamar UtentesContoller para criação de um objeto Utente
                     }
                     catch (Exception ex) 
                     {

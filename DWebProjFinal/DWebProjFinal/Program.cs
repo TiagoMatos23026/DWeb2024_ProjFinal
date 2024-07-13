@@ -66,8 +66,6 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddControllers();
-
 builder.Services.AddTransient<UtentesController>();
 builder.Services.AddTransient<CategoriasController>();
 builder.Services.AddTransient<PaginasController>();
@@ -95,13 +93,7 @@ app.UseRouting();
 
 app.UseCors("AllowAllOrigins");
 
-app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
 
 app.MapControllerRoute(
     name: "default",

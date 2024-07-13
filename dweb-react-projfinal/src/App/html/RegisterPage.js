@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterPage = () => {
+
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     Nome: '',
     Telemovel: '',
@@ -37,7 +41,7 @@ const RegisterPage = () => {
     submitData.append('IconFile', formData.IconFile);
 
     try {
-      const response = await axios.post('http://localhost:5101/api/AccountAPI/register', submitData, {
+      const response = await axios.post('https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/AccountAPI/register', submitData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -45,7 +49,9 @@ const RegisterPage = () => {
 
       if (response.status === 200) {
         console.log('User registered successfully');
-        // Redirect or show success message
+        alert('Registo efetuado com sucesso!')
+
+        navigate('/HomePage')
       } else {
         console.error('Error submitting form:', response.statusText);
       }

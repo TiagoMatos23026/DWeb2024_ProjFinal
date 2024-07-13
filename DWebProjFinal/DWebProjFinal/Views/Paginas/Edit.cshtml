@@ -1,4 +1,7 @@
 ﻿@model DWebProjFinal.Models.Paginas
+@{
+    var ListaCategoriasArray = Model.ListaCategorias.ToArray();
+}
 
 <style>
     .thumbnail {
@@ -18,21 +21,21 @@
     <input type="hidden" asp-for="Thumbnail" />
     <input type="hidden" asp-for="Utente" />
 
+    <h5>
+        <div class="form-group">
+            Nova <label asp-for="Thumbnail" class="control-label"></label>
+            <input type="file" name="ImgThumbnail" accept=".png,.jpg,.jpeg" class="form-control" />
+            <span asp-validation-for="Thumbnail" class="text-danger"></span>
+        </div>
+    </h5>
 
-    <div class="form-group">
-        Nova <label asp-for="Thumbnail" class="control-label"></label>
-        <input type="file" name="ImgThumbnail" accept=".png,.jpg,.jpeg" class="form-control"/>
-        <span asp-validation-for="Thumbnail" class="text-danger"></span>
-    </div>
-
-
-    <h1>
+    <h5>
         <div class="form-group">
             Novo <label asp-for="Name" class="control-label"></label>
             <input asp-for="Name" class="form-control" />
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
-    </h1>
+    </h5>
 
     <div>
         <hr />
@@ -59,15 +62,25 @@
     <div class="row row-cols-auto">
         <div class="col">
             <h5>
-                Dificuldade:
-            </h5>
-            <p>
                 <div class="form-group">
                     Nova <label asp-for="Dificuldade" class="control-label"></label>
                     <input asp-for="Dificuldade" class="form-control" />
                     <span asp-validation-for="Dificuldade" class="text-danger"></span>
                 </div>
-            </p>
+            </h5>
+            <h5><label asp-for="ListaCategorias" class="control-label"></label></h5>
+            <div id="categorias-container">
+                @foreach (var categoria in Model.ListaCategorias)
+                {
+                    <div class="form-group mb-2 categoria-input">
+                        <div class="input-group">
+                            <input name="ListaCategorias" value="@categoria.Nome" class="form-control" />
+                            <button type="button" class="btn btn-outline-danger remove-categoria-button">Remover</button>
+                        </div>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-outline-danger mb-2" id="add-categoria-button">Mais Categorias</button>
         </div>
     </div>
 
@@ -79,10 +92,9 @@
         </div>
 
         <div class="col">
-            <a class="btn btn-outline-success" asp-action="Index">Voltar</a>
+            <a class="btn btn-outline-success" asp-controller="Home" asp-action="Index">Voltar</a>
         </div>
     </div>
-
 
 </form>
 
@@ -90,4 +102,31 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        let categoriaIndex = 1;
+        document.getElementById('add-categoria-button').addEventListener('click', function () {
+            var container = document.getElementById('categorias-container');
+            var div = document.createElement('div');
+            div.className = 'form-group mb-2 categoria-input';
+            div.innerHTML = '<div class="input-group">' +
+                '<input name="ListaCategorias" class="form-control" />' +
+                '<button type="button" class="btn btn-outline-danger remove-categoria-button">Remover</button>' +
+                '</div>';
+            container.appendChild(div);
+
+            // Add event listener to the new remove button
+            div.querySelector('.remove-categoria-button').addEventListener('click', function () {
+                container.removeChild(div);
+            });
+
+            categoriaIndex++;
+        });
+
+        document.querySelectorAll('.remove-categoria-button').forEach(button => {
+            button.addEventListener('click', function () {
+                var container = document.getElementById('categorias-container');
+                container.removeChild(button.closest('.categoria-input'));
+            });
+        });
+    </script>
 }

@@ -28,7 +28,7 @@ function Layout() {
 
     const handleLogout = async () => {
         try {
-            await axios.post('http://localhost:5101/api/AccountAPI/logout', {}, {
+            await axios.post('https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/AccountAPI/logout', {}, {
                 withCredentials: true,
             });
             setUser(null);

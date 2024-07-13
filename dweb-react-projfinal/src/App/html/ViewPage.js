@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 function ViewPage() {
     const location = useLocation();
     const { page, autor } = location.state;
-    const baseUrl = "http://localhost:5101/imagens/";
+    const baseUrl = "https://dwebprojfinalhowtomasterapp.azurewebsites.net/imagens/";
 
     const navigate = useNavigate();
 

@@ -38,7 +38,7 @@ function CreatePage() {
 
         try {
             // Make POST request to the API using axios
-            const response = await axios.post('http://localhost:5101/api/PaginasAPI', submitData, {
+            const response = await axios.post('https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/PaginasAPI', submitData, {
                 withCredentials: true, // Include cookies (credentials)
                 headers: {
                     'Content-Type': 'multipart/form-data', // Set the correct content type for file upload

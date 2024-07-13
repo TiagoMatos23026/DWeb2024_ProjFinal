@@ -25,7 +25,7 @@ const EditPaginaPage = () => {
     useEffect(() => {
         const fetchPageData = async () => {
             try {
-                const response = await axios.get(`http://localhost:5101/api/PaginasAPI/${page.id}`, {
+                const response = await axios.get(`https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/PaginasAPI/${page.id}`, {
                     withCredentials: true, // Include credentials with the request
                 });
                 const { name, descricao, conteudo, dificuldade } = response.data;
@@ -59,7 +59,7 @@ const EditPaginaPage = () => {
         submitData.append('utenteFK', user.id);
 
         try {
-            const response = await axios.put(`http://localhost:5101/api/PaginasAPI/${page.id}`, submitData, {
+            const response = await axios.put(`https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/PaginasAPI/${page.id}`, submitData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

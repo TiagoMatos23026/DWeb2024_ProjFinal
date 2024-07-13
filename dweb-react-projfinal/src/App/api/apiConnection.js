@@ -1,5 +1,5 @@
 export const getUtentes = async () => {
-    const res = await fetch("http://localhost:5101/api/UtentesAPI", {
+    const res = await fetch("https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/UtentesAPI", {
         method: 'GET',
         credentials: 'include', // Include credentials (cookies)
     });
@@ -10,7 +10,7 @@ export const getUtentes = async () => {
 }
 
 export const getPages = async () => {
-    const res = await fetch("http://localhost:5101/api/PaginasAPI", {
+    const res = await fetch("https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/PaginasAPI", {
         method: 'GET',
         credentials: 'include', // Include credentials (cookies)
     });
@@ -21,7 +21,7 @@ export const getPages = async () => {
 };
 
 export const getPagesByUtente = async (utenteFk) => {
-    const res = await fetch(`http://localhost:5101/api/PaginasAPI/utente/${utenteFk}`, {
+    const res = await fetch(`https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/PaginasAPI/utente/${utenteFk}`, {
         method: 'GET',
         credentials: 'include', // Include credentials (cookies)
     });
@@ -32,7 +32,7 @@ export const getPagesByUtente = async (utenteFk) => {
 };
 
 export const getPageDetails = async () => {
-    const res = await fetch("http://localhost:5101/api/PaginasAPI", {
+    const res = await fetch("https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/PaginasAPI", {
         method: 'GET',
         credentials: 'include', // Include credentials (cookies)
     });
@@ -43,7 +43,7 @@ export const getPageDetails = async () => {
 };
 
 export const getUtenteDetails = async (id) => {
-    const res = await fetch(`http://localhost:5101/api/UtentesAPI/${id}`, {
+    const res = await fetch(`https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/UtentesAPI/${id}`, {
         method: 'GET',
         credentials: 'include', // Include credentials (cookies)
     });
@@ -54,7 +54,7 @@ export const getUtenteDetails = async (id) => {
 };
 
 export const getLoggedUtenteDetails = async (email) => {
-    const res = await fetch(`http://localhost:5101/api/UtentesAPI/email/${email}`, {
+    const res = await fetch(`https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/UtentesAPI/email/${email}`, {
         method: 'GET',
         credentials: 'include', // Include credentials (cookies)
     });
@@ -65,7 +65,7 @@ export const getLoggedUtenteDetails = async (email) => {
 };
 
 export const postLogin = async (formData) => {
-    const res = await fetch("http://localhost:5101/api/UtentesAPI/login", {
+    const res = await fetch("https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/UtentesAPI/login", {
         method: 'POST',
         body: formData,
         credentials: 'include', // Include credentials (cookies)

@@ -40,7 +40,7 @@ function ProfilePage() {
         if (!confirmed) return;
 
         try {
-            await axios.delete(`http://localhost:5101/api/PaginasAPI/${pageId}`, {
+            await axios.delete(`https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/PaginasAPI/${pageId}`, {
                 withCredentials: true, // Include credentials (cookies)
             });
 
@@ -69,7 +69,7 @@ function ProfilePage() {
             return <div>A carregar...</div>;
         }
 
-        const baseUrl = 'http://localhost:5101/imagens/';
+        const baseUrl = 'https://dwebprojfinalhowtomasterapp.azurewebsites.net/imagens/';
 
         return (
             <div className="container mt-5">

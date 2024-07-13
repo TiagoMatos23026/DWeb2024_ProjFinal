@@ -40,7 +40,7 @@ function HomePage() {
     };
 
     const renderPages = () => {
-        const baseUrl = "http://localhost:5101/imagens/";
+        const baseUrl = "https://dwebprojfinalhowtomasterapp.azurewebsites.net/imagens/";
         return pagesList.map((page, index) => {
             const autor = utentesList.find(utente => utente.id === page.utenteFK)?.nome || 'Desconhecido';
             const imagePath = `${baseUrl}${page.thumbnail}`;

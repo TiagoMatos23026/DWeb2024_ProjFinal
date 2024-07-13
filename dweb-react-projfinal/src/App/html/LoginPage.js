@@ -18,7 +18,7 @@ function LoginPage() {
     e.preventDefault();
     try {
       console.log('Sending login request...');
-      const response = await axios.post('http://localhost:5101/api/AccountAPI/login', {
+      const response = await axios.post('https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/AccountAPI/login', {
         email,
         password,
         rememberMe
@@ -33,7 +33,7 @@ function LoginPage() {
         console.log('Login successful, fetching user details for email:', email);
 
         // Fetch user details after successful login
-        const utenteResponse = await axios.get(`http://localhost:5101/api/UtentesAPI/email/${email}`, {
+        const utenteResponse = await axios.get(`https://dwebprojfinalhowtomasterapp.azurewebsites.net/api/UtentesAPI/email/${email}`, {
           withCredentials: true // Include credentials (cookies)
         });
 
